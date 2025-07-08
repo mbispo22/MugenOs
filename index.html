@@ -326,7 +326,7 @@
         .features {
             margin-top: 60px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             opacity: 0.7;
         }
@@ -426,6 +426,9 @@
             <a href="Project.html" class="nav-item" id="nav-projects">
                 <i>📋</i> Projetos
             </a>
+            <a href="Notepad.html" class="nav-item" id="nav-notepad">
+                <i>📝</i> Anotações
+            </a>
             <a href="#" class="nav-item" id="nav-expenses" style="opacity: 0.5; pointer-events: none;">
                 <i>💰</i> Despesas <small>(em breve)</small>
             </a>
@@ -462,6 +465,12 @@
 
 
         <div class="features">
+            <div class="feature">
+                <span class="feature-icon">📝</span>
+                <div class="feature-title">Anotações</div>
+                <div class="feature-desc">Bloco de notas rápido para ideias, lembretes e anotações importantes</div>
+                <a href="Notepad.html" style="position: absolute; inset: 0; z-index: 10;"></a>
+            </div>
             <div class="feature">
                 <span class="feature-icon">📋</span>
                 <div class="feature-title">Projetos</div>
@@ -558,6 +567,8 @@
                     document.getElementById('nav-home').classList.add('active');
                 } else if (currentPage === 'Project.html') {
                     document.getElementById('nav-projects').classList.add('active');
+                } else if (currentPage === 'Notepad.html') {
+                    document.getElementById('nav-notepad').classList.add('active');
                 }
             }
         }
@@ -592,11 +603,16 @@
                 feature.style.transform = 'translateY(20px)';
             });
 
-            // Preload Project.html for faster transition
-            const link = document.createElement('link');
-            link.rel = 'prefetch';
-            link.href = 'Project.html';
-            document.head.appendChild(link);
+            // Preload pages for faster transition
+            const projectLink = document.createElement('link');
+            projectLink.rel = 'prefetch';
+            projectLink.href = 'Project.html';
+            document.head.appendChild(projectLink);
+            
+            const notepadLink = document.createElement('link');
+            notepadLink.rel = 'prefetch';
+            notepadLink.href = 'Notepad.html';
+            document.head.appendChild(notepadLink);
         });
     </script>
 </body>
