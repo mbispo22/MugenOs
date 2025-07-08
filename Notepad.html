@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Language" content="pt-BR">
+    <title>MugenOs - Anotações</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♾️</text></svg>">
+    <style>
+        :root {
+            --ghostwhite: #F8F8FF;
+            --smoky-black: #100C08;
+            --meteorite-purple: #A523D9;
+            --border-color: #333;
+            --purple-glow: rgba(165, 35, 217, 0.5);
+            --card-bg: #1a1614;
+            --input-bg: #252018;
+            --success-green: #27ae60;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--smoky-black);
+            color: var(--ghostwhite);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hamburger Menu */
+        .hamburger-menu {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            z-index: 1000;
+            cursor: pointer;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .hamburger-menu:hover {
+            background: var(--meteorite-purple);
+            box-shadow: 0 5px 20px var(--purple-glow);
+            transform: scale(1.05);
+        }
+
+        .hamburger {
+            width: 30px;
+            height: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background: var(--ghostwhite);
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+            transform-origin: center;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -350px;
+            width: 350px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--card-bg) 0%, var(--smoky-black) 100%);
+            border-right: 1px solid var(--border-color);
+            transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 999;
+            backdrop-filter: blur(20px);
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            left: 0;
+            box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .sidebar-logo {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--meteorite-purple), var(--ghostwhite));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 15px 25px;
+            color: var(--ghostwhite);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: linear-gradient(90deg, var(--purple-glow), transparent);
+            border-left-color: var(--meteorite-purple);
+            padding-left: 35px;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, var(--purple-glow), transparent);
+            border-left-color: var(--meteorite-purple);
+            color: var(--meteorite-purple);
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding-top: 80px; /* Espaço para o menu hamburger */
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .page-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--meteorite-purple) 0%, #7d1aa0 30%, var(--ghostwhite) 60%, var(--meteorite-purple) 100%);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease-in-out infinite;
+            text-shadow: 0 0 30px var(--purple-glow);
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .page-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--meteorite-purple) 0%, #7d1aa0 30%, var(--ghostwhite) 60%, var(--meteorite-purple) 100%);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease-in-out infinite;
+            text-shadow: 0 0 30px var(--purple-glow);
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Notepad Container */
+        .notepad-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .notepad-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--meteorite-purple), #7d1aa0);
+        }
+
+        .notepad-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--input-bg);
+        }
+
+        .notepad-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notepad-icon {
+            font-size: 1.5rem;
+            color: var(--meteorite-purple);
+        }
+
+        .notepad-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--ghostwhite);
+        }
+
+        .auto-save-status {
+            font-size: 0.9rem;
+            color: #888;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .auto-save-status.saving {
+            opacity: 1;
+            color: var(--meteorite-purple);
+        }
+
+        .auto-save-status.saved {
+            opacity: 1;
+            color: var(--success-green);
+        }
+
+        /* Textarea */
+        .notepad-textarea {
+            flex: 1;
+            width: 100%;
+            background: transparent;
+            color: var(--ghostwhite);
+            border: none;
+            padding: 25px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            caret-color: var(--meteorite-purple);
+        }
+
+        .notepad-textarea::placeholder {
+            color: #555;
+            font-style: italic;
+        }
+
+        .notepad-textarea::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .notepad-textarea::-webkit-scrollbar-track {
+            background: var(--smoky-black);
+        }
+
+        .notepad-textarea::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 20px;
+            border: 3px solid var(--smoky-black);
+        }
+
+        .notepad-textarea::-webkit-scrollbar-thumb:hover {
+            background-color: var(--meteorite-purple);
+        }
+
+        /* Character Counter */
+        .notepad-footer {
+            padding: 15px 25px;
+            border-top: 1px solid var(--border-color);
+            background: var(--input-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .char-counter {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .word-counter {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: var(--ghostwhite);
+            font-weight: 600;
+            z-index: 1001;
+            transform: translateX(calc(100% + 30px));
+            transition: transform 0.4s ease-in-out;
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, var(--success-green), #229954);
+            box-shadow: 0 5px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .notepad-textarea {
+                padding: 20px;
+                font-size: 1rem;
+            }
+            
+            .notepad-header {
+                padding: 15px 20px;
+            }
+            
+            .notepad-footer {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hamburger Menu -->
+    <div class="hamburger-menu" id="hamburgerMenu">
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">MugenOs</div>
+            <div class="sidebar-subtitle">無限 Sistema</div>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item" id="nav-home">
+                <i>🏠</i> Início
+            </a>
+            <a href="Notepad.html" class="nav-item active" id="nav-notepad">
+                <i>📝</i> Anotações
+            </a>
+            <a href="Project.html" class="nav-item" id="nav-projects">
+                <i>📋</i> Projetos
+            </a>
+            <a href="#" class="nav-item" id="nav-expenses" style="opacity: 0.5; pointer-events: none;">
+                <i>💰</i> Despesas <small>(em breve)</small>
+            </a>
+            <a href="#" class="nav-item" id="nav-calendar" style="opacity: 0.5; pointer-events: none;">
+                <i>📅</i> Compromissos <small>(em breve)</small>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+
+        <div class="notepad-container">
+            <div class="notepad-header">
+                <div class="notepad-info">
+                    <span class="notepad-icon">📝</span>
+                    <span class="notepad-title">Suas Anotações</span>
+                </div>
+                <div class="auto-save-status" id="autoSaveStatus">
+                    Auto-save ativo
+                </div>
+            </div>
+
+            <textarea 
+                class="notepad-textarea" 
+                id="notepadTextarea" 
+                placeholder="Comece a escrever suas anotações aqui...
+
+💡 Dica: Suas anotações são salvas automaticamente no navegador."
+            ></textarea>
+
+            <div class="notepad-footer">
+                <div class="char-counter" id="charCounter">0 caracteres</div>
+                <div class="word-counter" id="wordCounter">0 palavras</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Navigation System
+        class MugenNavigation {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.cacheDOM();
+                this.bindEvents();
+                this.setActiveNav();
+            }
+
+            cacheDOM() {
+                this.hamburgerMenu = document.getElementById('hamburgerMenu');
+                this.hamburger = document.getElementById('hamburger');
+                this.sidebar = document.getElementById('sidebar');
+                this.overlay = document.getElementById('sidebarOverlay');
+                this.navItems = document.querySelectorAll('.nav-item');
+            }
+
+            bindEvents() {
+                this.hamburgerMenu.addEventListener('click', () => this.toggleSidebar());
+                this.overlay.addEventListener('click', () => this.closeSidebar());
+                
+                // Close sidebar when clicking on a nav item
+                this.navItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        if (!item.style.pointerEvents) {
+                            this.closeSidebar();
+                        }
+                    });
+                });
+
+                // Close sidebar on escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeSidebar();
+                    }
+                });
+            }
+
+            toggleSidebar() {
+                const isOpen = this.sidebar.classList.contains('open');
+                if (isOpen) {
+                    this.closeSidebar();
+                } else {
+                    this.openSidebar();
+                }
+            }
+
+            openSidebar() {
+                this.sidebar.classList.add('open');
+                this.overlay.classList.add('show');
+                this.hamburger.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            closeSidebar() {
+                this.sidebar.classList.remove('open');
+                this.overlay.classList.remove('show');
+                this.hamburger.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            setActiveNav() {
+                // Get current page from URL
+                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                
+                // Remove active class from all nav items
+                this.navItems.forEach(item => item.classList.remove('active'));
+                
+                // Set active based on current page
+                if (currentPage === 'index.html' || currentPage === '') {
+                    document.getElementById('nav-home').classList.add('active');
+                } else if (currentPage === 'Notepad.html') {
+                    document.getElementById('nav-notepad').classList.add('active');
+                } else if (currentPage === 'Project.html') {
+                    document.getElementById('nav-projects').classList.add('active');
+                }
+            }
+        }
+
+        // Notepad Application
+        class MugenNotepad {
+            constructor() {
+                this.STORAGE_KEY = 'mugenNotepadData';
+                this.autoSaveTimeout = null;
+                this.init();
+            }
+
+            init() {
+                this.cacheDOM();
+                this.bindEvents();
+                this.loadNote();
+                this.updateCounters();
+            }
+
+            cacheDOM() {
+                this.textarea = document.getElementById('notepadTextarea');
+                this.charCounter = document.getElementById('charCounter');
+                this.wordCounter = document.getElementById('wordCounter');
+                this.autoSaveStatus = document.getElementById('autoSaveStatus');
+            }
+
+            bindEvents() {
+                this.textarea.addEventListener('input', () => {
+                    this.updateCounters();
+                    this.scheduleAutoSave();
+                });
+
+                this.textarea.addEventListener('paste', () => {
+                    // Update counters after paste
+                    setTimeout(() => this.updateCounters(), 10);
+                });
+            }
+
+            loadNote() {
+                try {
+                    const savedNote = localStorage.getItem(this.STORAGE_KEY);
+                    if (savedNote) {
+                        this.textarea.value = savedNote;
+                        this.updateCounters();
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar anotação:', error);
+                }
+            }
+
+            saveNote() {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, this.textarea.value);
+                    this.showAutoSaveStatus('saved');
+                } catch (error) {
+                    console.error('Erro ao salvar anotação:', error);
+                    this.showAutoSaveStatus('error');
+                }
+            }
+
+            scheduleAutoSave() {
+                this.showAutoSaveStatus('saving');
+                
+                // Clear previous timeout
+                if (this.autoSaveTimeout) {
+                    clearTimeout(this.autoSaveTimeout);
+                }
+
+                // Save after 1 second of inactivity
+                this.autoSaveTimeout = setTimeout(() => {
+                    this.saveNote();
+                }, 1000);
+            }
+
+            showAutoSaveStatus(status) {
+                this.autoSaveStatus.className = 'auto-save-status';
+                
+                switch (status) {
+                    case 'saving':
+                        this.autoSaveStatus.textContent = 'Salvando...';
+                        this.autoSaveStatus.classList.add('saving');
+                        break;
+                    case 'saved':
+                        this.autoSaveStatus.textContent = 'Salvo automaticamente';
+                        this.autoSaveStatus.classList.add('saved');
+                        setTimeout(() => {
+                            this.autoSaveStatus.classList.remove('saved');
+                        }, 2000);
+                        break;
+                    case 'error':
+                        this.autoSaveStatus.textContent = 'Erro ao salvar';
+                        this.autoSaveStatus.style.color = '#e74c3c';
+                        setTimeout(() => {
+                            this.autoSaveStatus.style.color = '';
+                        }, 3000);
+                        break;
+                }
+            }
+
+            updateCounters() {
+                const text = this.textarea.value;
+                const charCount = text.length;
+                const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+                this.charCounter.textContent = `${charCount.toLocaleString()} caracteres`;
+                this.wordCounter.textContent = `${wordCount.toLocaleString()} palavras`;
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.classList.add('show'), 10);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 400);
+                }, 3000);
+            }
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.mugenNav = new MugenNavigation();
+            window.mugenNotepad = new MugenNotepad();
+        });
+    </script>
+</body>
+</html>
