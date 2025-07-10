@@ -1,67 +1,3 @@
-class MugenNavigation {
-  constructor() {
-    this.cacheDOM();
-    this.bindEvents();
-    this.setActiveNav();
-  }
-
-  cacheDOM() {
-    this.hamburgerMenu = document.getElementById('hamburgerMenu');
-    this.hamburger = document.getElementById('hamburger');
-    this.sidebar = document.getElementById('sidebar');
-    this.overlay = document.getElementById('sidebarOverlay');
-    this.navItems = document.querySelectorAll('.nav-item');
-  }
-
-  bindEvents() {
-    if (!this.hamburgerMenu) return;
-    this.hamburgerMenu.addEventListener('click', () => this.toggleSidebar());
-    this.overlay.addEventListener('click', () => this.closeSidebar());
-    this.navItems.forEach(item => {
-      item.addEventListener('click', () => {
-        if (!item.style.pointerEvents) this.closeSidebar();
-      });
-    });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') this.closeSidebar();
-    });
-  }
-
-  toggleSidebar() {
-    if (this.sidebar.classList.contains('open')) {
-      this.closeSidebar();
-    } else {
-      this.openSidebar();
-    }
-  }
-
-  openSidebar() {
-    this.sidebar.classList.add('open');
-    this.overlay.classList.add('show');
-    this.hamburger.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-
-  closeSidebar() {
-    this.sidebar.classList.remove('open');
-    this.overlay.classList.remove('show');
-    this.hamburger.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-
-  setActiveNav() {
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    this.navItems.forEach(item => item.classList.remove('active'));
-    if (currentPage === 'index.html' || currentPage === '') {
-      document.getElementById('nav-home')?.classList.add('active');
-    } else if (currentPage === 'Notepad.html') {
-      document.getElementById('nav-notepad')?.classList.add('active');
-    } else if (currentPage === 'Project.html') {
-      document.getElementById('nav-projects')?.classList.add('active');
-    }
-  }
-}
-
 class MugenNotepad {
   constructor() {
     this.STORAGE_KEY = 'mugenNotepadData';
@@ -506,7 +442,6 @@ function initIndexPage() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  window.mugenNav = new MugenNavigation();
   if (document.getElementById('notepadTextarea')) {
     window.mugenNotepad = new MugenNotepad();
   }
