@@ -7,6 +7,51 @@
     --card-bg: #1a1614;
     --input-bg: #252018;
     --success-green: #27ae60;
+    /* Core Batman Colors */
+    --batman-black: #000000;
+    --batman-dark-gray: #1C1C1C;
+    --batman-gray: #2F2F2F;
+    --batman-gold: #FFD700;
+    --batman-gold-orange: #FFA500;
+    --batman-yellow: #FFFF00;
+    --batman-medium-gray: #808080;
+    --batman-light-gray: #C0C0C0;
+    --batman-white: #FFFFFF;
+    --theme-primary: #A523D9;
+    --theme-secondary: #7d1aa0;
+    --theme-background: #100C08;
+    --theme-cards: #1a1614;
+}
+
+body.theme-purple {
+    --theme-primary: #A523D9;
+    --theme-secondary: #7d1aa0;
+    --theme-background: #100C08;
+    --theme-cards: #1a1614;
+    --ghostwhite: #F8F8FF;
+    --smoky-black: #100C08;
+    --meteorite-purple: #A523D9;
+    --border-color: #333;
+    --card-bg: #1a1614;
+    --input-bg: #252018;
+    --purple-glow: rgba(165, 35, 217, 0.5);
+}
+
+body.theme-batman {
+    --theme-primary: var(--batman-gold);
+    --theme-secondary: var(--batman-gold-orange);
+    --theme-background: var(--batman-dark-gray);
+    --theme-cards: var(--batman-gray);
+    --ghostwhite: var(--batman-light-gray);
+    --smoky-black: var(--batman-dark-gray);
+    --meteorite-purple: var(--batman-gold);
+    --border-color: var(--batman-gray);
+    --card-bg: var(--batman-gray);
+    --input-bg: var(--batman-black);
+    --purple-glow: rgba(255, 215, 0, 0.5);
+    --theme-accent: var(--batman-yellow);
+    --theme-text: var(--batman-light-gray);
+    --theme-border: var(--batman-gray);
 }
 
 * {
@@ -339,6 +384,47 @@ body.app-page {
 
 .nav-menu {
     padding: 20px 0;
+}
+
+.theme-selector {
+    padding: 20px 25px;
+    border-top: 1px solid var(--border-color);
+}
+
+.theme-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.theme-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-option.active {
+    box-shadow: 0 0 0 2px var(--meteorite-purple);
+}
+
+.theme-preview {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-bottom: 5px;
+}
+
+.theme-purple {
+    background: linear-gradient(45deg, #A523D9, #7d1aa0);
+}
+
+.theme-batman {
+    background: linear-gradient(45deg, var(--batman-gold), var(--batman-black));
+    border: 1px solid var(--batman-gold);
 }
 
 .nav-item {

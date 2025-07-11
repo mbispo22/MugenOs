@@ -36,10 +36,24 @@ class MugenMenu extends HTMLElement {
                 <i>📅</i> Compromissos <small>(em breve)</small>
             </a>
         </div>
-    </nav>`;
+        <div class="theme-selector">
+          <div class="theme-label">Temas</div>
+          <div class="theme-options">
+            <div class="theme-option active" data-theme="purple">
+              <div class="theme-preview theme-purple"></div>
+              <span>MugenOs</span>
+            </div>
+            <div class="theme-option" data-theme="batman">
+              <div class="theme-preview theme-batman"></div>
+              <span>BatmanOs</span>
+            </div>
+          </div>
+        </div>
+      </nav>`;
     this.cacheDOM();
     this.bindEvents();
     this.setActiveNav();
+    this.loadTheme();
   }
 
   cacheDOM() {
@@ -48,6 +62,7 @@ class MugenMenu extends HTMLElement {
     this.sidebar = this.querySelector('#sidebar');
     this.overlay = this.querySelector('#sidebarOverlay');
     this.navItems = this.querySelectorAll('.nav-item');
+    this.themeOptions = this.querySelectorAll('.theme-option');
   }
 
   bindEvents() {
@@ -57,6 +72,13 @@ class MugenMenu extends HTMLElement {
     this.navItems.forEach(item => {
       item.addEventListener('click', () => {
         if (!item.style.pointerEvents) this.closeSidebar();
+      });
+    });
+    this.themeOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        const theme = opt.dataset.theme;
+        this.applyTheme(theme);
+        this.saveTheme(theme);
       });
     });
     this._handleKeyDown = (e) => {
@@ -101,6 +123,40 @@ class MugenMenu extends HTMLElement {
     } else if (currentPage === 'Project.html') {
       this.querySelector('#nav-projects')?.classList.add('active');
     }
+  }
+
+  loadTheme() {
+    const savedTheme = localStorage.getItem('mugenThemePreference') || 'purple';
+    this.applyTheme(savedTheme);
+  }
+
+  applyTheme(themeName) {
+    document.body.classList.remove('theme-purple', 'theme-batman');
+    document.body.classList.add(`theme-${themeName}`);
+    this.updateThemeSelector(themeName);
+    this.updateBranding(themeName);
+  }
+
+  updateThemeSelector(themeName) {
+    this.themeOptions.forEach(opt => {
+      opt.classList.toggle('active', opt.dataset.theme === themeName);
+    });
+  }
+
+  updateBranding(themeName) {
+    const logo = this.querySelector('.sidebar-logo');
+    const subtitle = this.querySelector('.sidebar-subtitle');
+    const isBatman = themeName === 'batman';
+    logo.textContent = isBatman ? 'BatmanOs' : 'MugenOs';
+    subtitle.textContent = isBatman ? '🦇 Sistema' : '無限 Sistema';
+    const heroTitle = document.querySelector('.logo .title');
+    if (heroTitle) heroTitle.textContent = isBatman ? 'BatmanOs' : 'MugenOs';
+    const heroSubtitle = document.querySelector('.logo .subtitle');
+    if (heroSubtitle) heroSubtitle.textContent = isBatman ? '🦇 Sistema' : 'Sistema Infinito';
+  }
+
+  saveTheme(themeName) {
+    localStorage.setItem('mugenThemePreference', themeName);
   }
 }
 
