@@ -41,11 +41,11 @@ class MugenMenu extends HTMLElement {
           <div class="theme-options">
             <div class="theme-option active" data-theme="purple">
               <div class="theme-preview theme-purple"></div>
-              <span>MugenOs</span>
+              <span>Meteorite</span>
             </div>
             <div class="theme-option" data-theme="batman">
               <div class="theme-preview theme-batman"></div>
-              <span>BatmanOs</span>
+              <span>Batman</span>
             </div>
           </div>
         </div>
@@ -134,7 +134,6 @@ class MugenMenu extends HTMLElement {
     document.body.classList.remove('theme-purple', 'theme-batman');
     document.body.classList.add(`theme-${themeName}`);
     this.updateThemeSelector(themeName);
-    this.updateBranding(themeName);
   }
 
   updateThemeSelector(themeName) {
@@ -143,16 +142,15 @@ class MugenMenu extends HTMLElement {
     });
   }
 
-  updateBranding(themeName) {
+  updateBranding() {
     const logo = this.querySelector('.sidebar-logo');
+    if (logo) logo.textContent = 'MugenOs';
     const subtitle = this.querySelector('.sidebar-subtitle');
-    const isBatman = themeName === 'batman';
-    logo.textContent = isBatman ? 'BatmanOs' : 'MugenOs';
-    subtitle.textContent = isBatman ? '🦇 Sistema' : '無限 Sistema';
+    if (subtitle) subtitle.textContent = '無限 Sistema';
     const heroTitle = document.querySelector('.logo .title');
-    if (heroTitle) heroTitle.textContent = isBatman ? 'BatmanOs' : 'MugenOs';
+    if (heroTitle) heroTitle.textContent = 'MugenOs';
     const heroSubtitle = document.querySelector('.logo .subtitle');
-    if (heroSubtitle) heroSubtitle.textContent = isBatman ? '🦇 Sistema' : 'Sistema Infinito';
+    if (heroSubtitle) heroSubtitle.textContent = 'Sistema Infinito';
   }
 
   saveTheme(themeName) {
