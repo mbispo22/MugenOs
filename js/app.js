@@ -422,13 +422,6 @@ function initIndexPage() {
     });
   });
 
-  const features = document.querySelectorAll('.feature');
-  features.forEach((feature, index) => {
-    feature.style.animationDelay = `${0.5 + index * 0.1}s`;
-    feature.style.animation = 'fadeInUp 0.8s ease-out forwards';
-    feature.style.opacity = '0';
-    feature.style.transform = 'translateY(20px)';
-  });
 
   const projectLink = document.createElement('link');
   projectLink.rel = 'prefetch';
