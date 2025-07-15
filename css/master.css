@@ -258,9 +258,14 @@ body.app-page {
 .features {
     margin-top: 60px;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important; /* Forçar 2 linhas */
     gap: 20px;
     opacity: 0.7;
+    width: 100%;
+    max-width: 800px; /* Limitar largura máxima */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .feature {
@@ -272,7 +277,28 @@ body.app-page {
     backdrop-filter: blur(10px);
     position: relative;
     cursor: pointer;
+    min-height: 120px; /* Altura mínima */
+    display: flex !important; /* Forçar exibição */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    visibility: visible !important; /* Forçar visibilidade */
+    opacity: 1 !important; /* Forçar opacidade */
 }
+
+/* Garantir que os links não quebrem o layout */
+.feature a {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    text-decoration: none;
+}
+
+/* Forçar ordem correta dos cards */
+.feature:nth-child(1) { order: 1; } /* Anotações */
+.feature:nth-child(2) { order: 2; } /* Projetos */
+.feature:nth-child(3) { order: 3; } /* Despesas */
+.feature:nth-child(4) { order: 4; } /* Compromissos */
 
 .feature:hover {
     transform: translateY(-3px);
@@ -305,7 +331,8 @@ body.app-page {
     }
 
     .features {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(4, 1fr) !important;
         gap: 15px;
     }
 
