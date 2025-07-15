@@ -5,14 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Language" content="pt-BR">
     <title>MugenOs - Projetos</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♾️</text></svg>">
-    <link rel="stylesheet" href="css/master.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="app-page theme-purple">
-    <mugen-menu></mugen-menu>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="nav-brand">MugenOs</a>
+            <div class="nav-links">
+                <a href="Notepad.html">Anotações</a>
+                <a href="Project.html">Projetos</a>
+            </div>
+        </nav>
+    </header>
 
-    <!-- Main Content -->
-    <div class="main-content">
+    <main class="container">
         <div class="page-header">
             <h1 class="page-title">MugenOs</h1>
             <p class="page-subtitle">無限</p>
@@ -34,7 +40,7 @@
         </div>
 
         <div class="add-project">
-            <h2 style="margin-bottom: 20px;">∞ Adicionar Novo Projeto</h2>
+            <h2 style="margin-bottom: 20px;">Adicionar Novo Projeto</h2>
             <form id="projectForm">
                 <div class="form-row">
                     <div class="form-group"><label for="projectName">Nome do Projeto</label><input type="text" id="projectName" required></div>
@@ -51,13 +57,12 @@
         </div>
 
         <div class="projects-grid" id="projectsGrid"></div>
-    </div>
+    </main>
 
-    <!-- Edit Modal -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="closeModalBtn">&times;</span>
-            <h2>✏️ Editar Projeto</h2>
+            <h2>Editar Projeto</h2>
             <form id="editForm" style="margin-top: 20px;">
                 <input type="hidden" id="editProjectId">
                 <div class="form-row">
@@ -72,13 +77,12 @@
                 <div class="form-group"><label for="editProjectSteps">Etapas do Projeto (uma por linha)</label><textarea id="editProjectSteps" placeholder="Etapa 1&#10;Etapa 2&#10;Etapa 3"></textarea></div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <button type="button" class="btn btn-danger" id="cancelEditBtn">Cancelar</button>
-                    <button type="submit" class="btn" style="background: linear-gradient(135deg, var(--success-green), #229954);">Salvar Alterações</button>
+                    <button type="submit" class="btn">Salvar Alterações</button>
                 </div>
             </form>
         </div>
     </div>
-    <script src="components/mugen-menu.js"></script>
-    <script src="js/app.js" defer></script>
 
+    <script src="js/app.js" defer></script>
 </body>
 </html>
