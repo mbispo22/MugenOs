@@ -43,9 +43,7 @@ body.theme-batman {
     --theme-secondary: var(--batman-gold-orange);
 
     /* Backgrounds */
-    --theme-background: var(--batman-black);
     --theme-cards: var(--batman-black);
-    --smoky-black: var(--batman-black);
     --card-bg: var(--batman-black);
     --input-bg: var(--batman-dark-gray);
 
@@ -71,7 +69,7 @@ body.theme-batman {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--smoky-black);
+    background-color: #100C08 !important;
     color: var(--ghostwhite);
     min-height: 100vh;
 }
@@ -82,11 +80,12 @@ body.index-page {
     justify-content: center;
     overflow: hidden;
     position: relative;
-    background: linear-gradient(135deg, var(--smoky-black) 0%, #1a1a1a 50%, var(--smoky-black) 100%);
+    background: linear-gradient(135deg, #100C08 0%, #1a1a1a 50%, #100C08 100%) !important;
 }
 
 body.app-page {
     display: flex;
+    background-color: #100C08 !important;
     flex-direction: column;
 }
 
