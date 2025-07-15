@@ -16,6 +16,14 @@
     --success-fg: #3fb950;       /* Cor para ações de sucesso */
     --shadow-small: 0 0 transparent; /* Sombra sutil para tema escuro */
     --shadow-medium: 0 8px 24px #010409;
+
+    /* Sistema de espaçamento */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
 }
 
 * {
@@ -77,8 +85,30 @@ a:hover {
     max-width: 1280px;
     width: 100%;
     margin: 0 auto;
-    padding: 24px 16px;
+    padding: var(--space-lg) var(--space-md);
     flex: 1;
+}
+
+/* Cabeçalho das páginas */
+.page-header {
+    text-align: center;
+    padding: var(--space-2xl) 0;
+    position: relative;
+}
+
+.page-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--accent-fg) 0%, #79c0ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: var(--space-sm);
+}
+
+.page-subtitle {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--fg-muted);
+    opacity: 0.8;
 }
 
 .card {
@@ -89,6 +119,14 @@ a:hover {
     box-shadow: var(--shadow-small);
     display: flex;
     flex-direction: column;
+    animation: slideIn 0.3s ease-out;
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-fg);
 }
 
 .btn {
@@ -122,6 +160,21 @@ a:hover {
 
 
 /* --- Layout da Página Principal --- */
+.hero {
+    text-align: center;
+    padding: var(--space-2xl) 0;
+    margin-bottom: var(--space-xl);
+}
+
+.hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    margin-bottom: var(--space-md);
+    background: linear-gradient(135deg, #58a6ff 0%, #79c0ff 50%, #56d364 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 3s ease infinite;
+}
+
 .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -136,6 +189,24 @@ a:hover {
     flex-grow: 1;
     margin-bottom: 16px;
     color: var(--fg-muted);
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: var(--space-md);
+    background: var(--bg-muted);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.card:hover .feature-icon {
+    background: var(--accent-emphasis);
+    transform: scale(1.1);
+    transition: all 0.3s ease;
 }
 
 /* --- Formulários --- */
@@ -204,7 +275,24 @@ a:hover {
     gap: 16px;
 }
 .project-card {
+    background: linear-gradient(135deg, var(--bg-default) 0%, rgba(22, 27, 34, 0.8) 100%);
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    position: relative;
     gap: 12px;
+}
+
+.project-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--border-default), transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
 }
 .project-title {
     font-weight: 600;
@@ -217,6 +305,8 @@ a:hover {
     font-weight: 500;
     text-transform: capitalize;
     border: 1px solid;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 .project-type.pessoal { color: #56d364; border-color: #56d364; background-color: rgba(56, 139, 69, 0.15); }
 .project-type.trabalho { color: #79c0ff; border-color: #79c0ff; background-color: rgba(57, 133, 228, 0.15); }
@@ -233,17 +323,71 @@ a:hover {
 .progress-bar {
     background: var(--bg-muted);
 }
+
 .progress-fill {
-    background: var(--accent-fg);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(90deg, var(--accent-fg), #79c0ff);
+    position: relative;
+    overflow: hidden;
 }
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: shimmer 2s infinite;
+}
+.step-item {
+    padding: var(--space-sm) 0;
+    transition: all 0.2s ease;
+}
+
+.step-item.completed {
+    opacity: 0.6;
+}
+
 .step-item.completed .step-text {
-    color: var(--fg-muted);
+    text-decoration: line-through;
+    color: var(--success-fg);
+}
+
+/* Checkboxes customizados */
+.step-checkbox {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-default);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.step-checkbox:checked {
+    background: var(--success-fg);
+    border-color: var(--success-fg);
+}
+
+.step-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* --- Modal --- */
 .modal {
     background: rgba(1,4,9,0.8);
+    backdrop-filter: blur(8px);
 }
+
 .modal-content {
     background: var(--bg-default);
     padding: 24px;
@@ -253,19 +397,64 @@ a:hover {
     width: 90%;
     max-width: 600px;
     position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 /* Bloco de notas */
+.notepad-container {
+    background: var(--bg-default);
+    border-radius: 8px;
+    border: 1px solid var(--border-default);
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 140px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.notepad-header {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--border-default);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(22, 27, 34, 0.5);
+}
+
 .notepad-textarea {
     flex: 1;
     border: 1px solid var(--border-default);
     border-radius: 6px;
-    padding: 16px;
+    padding: var(--space-lg);
     resize: vertical;
     font-family: 'Fira Code', monospace;
     font-size: 16px;
     background-color: var(--bg-default);
     color: var(--fg-default);
+}
+
+.notepad-textarea::placeholder {
+    color: var(--fg-muted);
+    opacity: 0.5;
+}
+
+/* Indicador de auto-save animado */
+.auto-save-status {
+    font-size: 12px;
+    color: var(--fg-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.auto-save-status.saving::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-fg);
+    animation: pulse 1s infinite;
 }
 
 /* Notificações */
@@ -286,3 +475,66 @@ a:hover {
 }
 .notification.error { background: var(--danger-fg); }
 .notification.success { background: var(--success-fg); }
+
+/* Estados de foco e tooltips */
+:focus-visible {
+    outline: 2px solid var(--accent-fg);
+    outline-offset: 2px;
+}
+
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: var(--bg-muted);
+    color: var(--fg-default);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+/* Animações e keyframes */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
