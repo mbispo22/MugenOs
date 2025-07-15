@@ -38,19 +38,28 @@ body.theme-purple {
 }
 
 body.theme-batman {
+    /* Cores primárias */
     --theme-primary: var(--batman-gold);
     --theme-secondary: var(--batman-gold-orange);
-    --theme-background: var(--batman-dark-gray);
-    --theme-cards: var(--batman-gray);
-    --ghostwhite: var(--batman-light-gray);
-    --smoky-black: var(--batman-dark-gray);
+
+    /* Backgrounds */
+    --theme-background: var(--batman-black);
+    --theme-cards: var(--batman-black);
+    --smoky-black: var(--batman-black);
+    --card-bg: var(--batman-black);
+    --input-bg: var(--batman-dark-gray);
+
+    /* Textos */
+    --ghostwhite: var(--batman-gold);
+    --theme-text: var(--batman-gold);
+
+    /* Accent Colors - SEM ROXO */
     --meteorite-purple: var(--batman-gold);
-    --border-color: var(--batman-gray);
-    --card-bg: var(--batman-gray);
-    --input-bg: var(--batman-black);
     --purple-glow: rgba(255, 215, 0, 0.5);
     --theme-accent: var(--batman-yellow);
-    --theme-text: var(--batman-light-gray);
+
+    /* Borders */
+    --border-color: var(--batman-gray);
     --theme-border: var(--batman-gray);
 }
 
@@ -998,4 +1007,131 @@ textarea { resize: vertical; min-height: 80px; }
 .notification.info {
     background: linear-gradient(135deg, #3498db, #2980b9);
     box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+}
+
+/* ------------------------------------------------------------
+   🦇 TEMA BATMAN CORRIGIDO - PRETO E DOURADO PURO
+   Estas regras personalizam elementos específicos quando o
+   corpo possui a classe `theme-batman`, garantindo que nenhum
+   traço de roxo permaneça no tema do Cavaleiro das Trevas.
+   ------------------------------------------------------------ */
+
+/* 🎨 STAT CARDS - Dourado completo */
+body.theme-batman .stat-card {
+    background: linear-gradient(135deg, var(--batman-gold) 0%, var(--batman-gold-orange) 100%) !important;
+    color: var(--batman-black) !important;
+    box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* 📝 TEXTAREA - Texto dourado */
+body.theme-batman .notepad-textarea {
+    color: var(--batman-gold) !important;
+    caret-color: var(--batman-gold) !important;
+}
+
+body.theme-batman .notepad-textarea::placeholder {
+    color: var(--batman-medium-gray) !important;
+}
+
+/* 🎯 BUTTONS - Dourado */
+body.theme-batman .btn,
+body.theme-batman .btn-small {
+    background: linear-gradient(135deg, var(--batman-gold) 0%, var(--batman-gold-orange) 100%) !important;
+    color: var(--batman-black) !important;
+}
+
+body.theme-batman .btn:hover,
+body.theme-batman .btn-small:hover {
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* 📋 PROJECT CARDS */
+body.theme-batman .project-card {
+    background: var(--batman-black) !important;
+    border: 1px solid var(--batman-gray) !important;
+    color: var(--batman-gold) !important;
+}
+
+body.theme-batman .project-card:hover {
+    border-color: var(--batman-gold) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;
+}
+
+body.theme-batman .project-card::before {
+    background: linear-gradient(90deg, var(--batman-gold), var(--batman-gold-orange)) !important;
+}
+
+/* 🏷️ PROJECT TYPE TAGS */
+body.theme-batman .project-type {
+    background: var(--batman-gold) !important;
+    color: var(--batman-black) !important;
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* ⚡ PROGRESS BARS */
+body.theme-batman .progress-fill {
+    background: linear-gradient(90deg, var(--batman-gold), var(--batman-gold-orange)) !important;
+}
+
+/* 🎨 LOGO E TÍTULOS */
+body.theme-batman .title,
+body.theme-batman .page-title {
+    background: linear-gradient(135deg, var(--batman-gold) 0%, var(--batman-gold-orange) 30%, var(--batman-white) 60%, var(--batman-gold) 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.5) !important;
+}
+
+body.theme-batman .sidebar-logo {
+    background: linear-gradient(135deg, var(--batman-gold), var(--batman-white)) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+/* 🔥 JAPANESE CHARACTER */
+body.theme-batman .japanese {
+    color: var(--batman-gold) !important;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* 🎯 INPUTS E FORMS */
+body.theme-batman input:focus,
+body.theme-batman textarea:focus,
+body.theme-batman select:focus {
+    border-color: var(--batman-gold) !important;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* 🍔 HAMBURGER MENU HOVER */
+body.theme-batman .hamburger-menu:hover {
+    background: var(--batman-gold) !important;
+    box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* 🎨 NAV ITEMS */
+body.theme-batman .nav-item:hover {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent) !important;
+    border-left-color: var(--batman-gold) !important;
+}
+
+body.theme-batman .nav-item.active {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent) !important;
+    border-left-color: var(--batman-gold) !important;
+    color: var(--batman-gold) !important;
+}
+
+/* 🔧 THEME SELECTOR ACTIVE */
+body.theme-batman .theme-option.active {
+    box-shadow: 0 0 0 2px var(--batman-gold) !important;
+}
+
+/* ✨ PARTICLES */
+body.theme-batman .particle {
+    background: var(--batman-gold) !important;
+}
+
+/* 🎨 FEATURES HOVER */
+body.theme-batman .feature:hover {
+    border-color: var(--batman-gold) !important;
+    box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3) !important;
 }
