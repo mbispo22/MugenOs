@@ -43,9 +43,7 @@ body.theme-batman {
     --theme-secondary: var(--batman-gold-orange);
 
     /* Backgrounds */
-    --theme-background: var(--batman-black);
     --theme-cards: var(--batman-black);
-    --smoky-black: var(--batman-black);
     --card-bg: var(--batman-black);
     --input-bg: var(--batman-dark-gray);
 
@@ -63,7 +61,46 @@ body.theme-batman {
     --theme-border: var(--batman-gray);
 }
 
+/* 🎨 CORREÇÃO DEFINITIVA - FUNDO FIXO COM FORÇA MÁXIMA */
+
+/* Forçar fundo fixo em TODAS as variações */
+body,
+body.theme-purple,
+body.theme-batman,
+body.index-page,
+body.app-page {
+    background-color: #100C08 !important;
+    background-image: none !important;
+}
+
+/* Apenas a homepage mantém o gradiente */
+body.index-page {
+    background: linear-gradient(135deg, #100C08 0%, #1a1a1a 50%, #100C08 100%) !important;
+}
+
+/* Garantir que nenhuma CSS variable sobrescreva o fundo */
+body.theme-purple {
+    --theme-background: #100C08 !important;
+    --smoky-black: #100C08 !important;
+}
+
+body.theme-batman {
+    --theme-background: #100C08 !important;
+    --smoky-black: #100C08 !important;
+}
+
+/* Aplicar em elementos HTML e root também */
+html {
+    background-color: #100C08 !important;
+}
+
+:root {
+    --smoky-black: #100C08 !important;
+}
+
+/* Resetar qualquer background que possa estar interferindo */
 * {
+    background-color: inherit;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -71,7 +108,6 @@ body.theme-batman {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--smoky-black);
     color: var(--ghostwhite);
     min-height: 100vh;
 }
@@ -82,7 +118,6 @@ body.index-page {
     justify-content: center;
     overflow: hidden;
     position: relative;
-    background: linear-gradient(135deg, var(--smoky-black) 0%, #1a1a1a 50%, var(--smoky-black) 100%);
 }
 
 body.app-page {
@@ -223,9 +258,14 @@ body.app-page {
 .features {
     margin-top: 60px;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important; /* Forçar 2 linhas */
     gap: 20px;
     opacity: 0.7;
+    width: 100%;
+    max-width: 800px; /* Limitar largura máxima */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .feature {
@@ -237,7 +277,28 @@ body.app-page {
     backdrop-filter: blur(10px);
     position: relative;
     cursor: pointer;
+    min-height: 120px; /* Altura mínima */
+    display: flex !important; /* Forçar exibição */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    visibility: visible !important; /* Forçar visibilidade */
+    opacity: 1 !important; /* Forçar opacidade */
 }
+
+/* Garantir que os links não quebrem o layout */
+.feature a {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    text-decoration: none;
+}
+
+/* Forçar ordem correta dos cards */
+.feature:nth-child(1) { order: 1; } /* Anotações */
+.feature:nth-child(2) { order: 2; } /* Projetos */
+.feature:nth-child(3) { order: 3; } /* Despesas */
+.feature:nth-child(4) { order: 4; } /* Compromissos */
 
 .feature:hover {
     transform: translateY(-3px);
@@ -270,7 +331,8 @@ body.app-page {
     }
 
     .features {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(4, 1fr) !important;
         gap: 15px;
     }
 
