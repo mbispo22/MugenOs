@@ -258,10 +258,8 @@ body.app-page {
 .features {
     margin-top: 60px;
     display: grid;
-    grid-template-columns: repeat(2, 1fr) !important;
-    grid-template-rows: repeat(2, 1fr) !important; /* Forçar 2 linhas */
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
-    opacity: 0.7;
     width: 100%;
     max-width: 800px; /* Limitar largura máxima */
     margin-left: auto;
@@ -277,13 +275,15 @@ body.app-page {
     backdrop-filter: blur(10px);
     position: relative;
     cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease-out forwards;
     min-height: 120px; /* Altura mínima */
     display: flex !important; /* Forçar exibição */
     flex-direction: column;
     align-items: center;
     justify-content: center;
     visibility: visible !important; /* Forçar visibilidade */
-    opacity: 1 !important; /* Forçar opacidade */
 }
 
 /* Garantir que os links não quebrem o layout */
@@ -295,10 +295,10 @@ body.app-page {
 }
 
 /* Forçar ordem correta dos cards */
-.feature:nth-child(1) { order: 1; } /* Anotações */
-.feature:nth-child(2) { order: 2; } /* Projetos */
-.feature:nth-child(3) { order: 3; } /* Despesas */
-.feature:nth-child(4) { order: 4; } /* Compromissos */
+.feature:nth-child(1) { order: 1; animation-delay: 0.5s; } /* Anotações */
+.feature:nth-child(2) { order: 2; animation-delay: 0.6s; } /* Projetos */
+.feature:nth-child(3) { order: 3; animation-delay: 0.7s; } /* Despesas */
+.feature:nth-child(4) { order: 4; animation-delay: 0.8s; } /* Compromissos */
 
 .feature:hover {
     transform: translateY(-3px);
