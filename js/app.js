@@ -407,24 +407,28 @@ class ProjectOrganizer {
   }
 }
 
-function initIndexPage() {
-  const projectLink = document.createElement('link');
-  projectLink.rel = 'prefetch';
-  projectLink.href = 'Project.html';
-  document.head.appendChild(projectLink);
-
-  const notepadLink = document.createElement('link');
-  notepadLink.rel = 'prefetch';
-  notepadLink.href = 'Notepad.html';
-  document.head.appendChild(notepadLink);
-}
-
+// CÓDIGO CORRIGIDO E MAIS ROBUSTO
 document.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('notepadTextarea')) {
+  const path = window.location.pathname.split("/").pop();
+
+  if (path === 'index.html' || path === '') {
+    // Código para a página inicial
+    const projectLink = document.createElement('link');
+    projectLink.rel = 'prefetch';
+    projectLink.href = 'Project.html';
+    document.head.appendChild(projectLink);
+
+    const notepadLink = document.createElement('link');
+    notepadLink.rel = 'prefetch';
+    notepadLink.href = 'Notepad.html';
+    document.head.appendChild(notepadLink);
+
+  } else if (path === 'Notepad.html') {
+    // Inicia o notepad apenas na página de anotações
     window.mugenNotepad = new MugenNotepad();
-  }
-  if (document.getElementById('projectForm')) {
+
+  } else if (path === 'Project.html') {
+    // Inicia o organizador de projetos apenas na página de projetos
     window.organizer = new ProjectOrganizer();
   }
-  initIndexPage();
 });
