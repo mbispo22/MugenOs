@@ -1,32 +1,32 @@
+/**
+ * MugenNotepad: Classe para gerir a funcionalidade do bloco de notas.
+ */
 class MugenNotepad {
   constructor() {
     this.STORAGE_KEY = 'mugenNotepadData';
     this.autoSaveTimeout = null;
-    this.init();
-  }
-
-  init() {
-    this.cacheDOM();
-    this.bindEvents();
-    this.loadNote();
-    this.updateCounters();
+    // A inicialização só ocorre se os elementos necessários existirem.
+    if (this.cacheDOM()) {
+      this.bindEvents();
+      this.loadNote();
+      this.updateCounters();
+    }
   }
 
   cacheDOM() {
     this.textarea = document.getElementById('notepadTextarea');
+    if (!this.textarea) return false; // Aborta se o elemento principal não for encontrado
+
     this.charCounter = document.getElementById('charCounter');
     this.wordCounter = document.getElementById('wordCounter');
     this.autoSaveStatus = document.getElementById('autoSaveStatus');
+    return true;
   }
 
   bindEvents() {
     this.textarea.addEventListener('input', () => {
       this.updateCounters();
       this.scheduleAutoSave();
-    });
-
-    this.textarea.addEventListener('paste', () => {
-      setTimeout(() => this.updateCounters(), 10);
     });
   }
 
@@ -35,7 +35,6 @@ class MugenNotepad {
       const savedNote = localStorage.getItem(this.STORAGE_KEY);
       if (savedNote) {
         this.textarea.value = savedNote;
-        this.updateCounters();
       }
     } catch (error) {
       console.error('Erro ao carregar anotação:', error);
@@ -59,94 +58,83 @@ class MugenNotepad {
     }
     this.autoSaveTimeout = setTimeout(() => {
       this.saveNote();
-    }, 1000);
+    }, 1500); // Aumentado o tempo para 1.5s
   }
 
   showAutoSaveStatus(status) {
+    if (!this.autoSaveStatus) return;
     this.autoSaveStatus.className = 'auto-save-status';
     switch (status) {
       case 'saving':
-        this.autoSaveStatus.textContent = 'Salvando...';
+        this.autoSaveStatus.textContent = 'A guardar...';
         this.autoSaveStatus.classList.add('saving');
         break;
       case 'saved':
-        this.autoSaveStatus.textContent = 'Salvo automaticamente';
+        this.autoSaveStatus.textContent = 'Guardado';
         this.autoSaveStatus.classList.add('saved');
         setTimeout(() => {
+          this.autoSaveStatus.textContent = 'Auto-save ativo';
           this.autoSaveStatus.classList.remove('saved');
         }, 2000);
         break;
       case 'error':
-        this.autoSaveStatus.textContent = 'Erro ao salvar';
-        this.autoSaveStatus.style.color = '#e74c3c';
-        setTimeout(() => {
-          this.autoSaveStatus.style.color = '';
-        }, 3000);
+        this.autoSaveStatus.textContent = 'Erro ao guardar';
         break;
     }
   }
 
   updateCounters() {
+    if (!this.textarea) return;
     const text = this.textarea.value;
     const charCount = text.length;
     const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
     this.charCounter.textContent = `${charCount.toLocaleString()} caracteres`;
     this.wordCounter.textContent = `${wordCount.toLocaleString()} palavras`;
   }
-
-  showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.classList.add('show'), 10);
-    setTimeout(() => {
-      notification.classList.remove('show');
-      setTimeout(() => notification.remove(), 400);
-    }, 3000);
-  }
 }
 
+/**
+ * ProjectOrganizer: Classe para gerir toda a lógica dos projetos.
+ */
 class ProjectOrganizer {
   constructor() {
     this.STORAGE_KEY = 'mugenProjectsData';
-    this.projects = this.loadFromLocalStorage() || [];
-    this.dateFormatter = new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC'
-    });
-    this.init();
-  }
-
-  init() {
-    this.cacheDOM();
-    this.bindEvents();
-    this.renderAll();
-    setInterval(() => this.saveToLocalStorage(true), 2 * 60 * 1000);
+    // A inicialização só ocorre se a página de projetos estiver ativa.
+    if (this.cacheDOM()) {
+      this.projects = this.loadFromLocalStorage() || [];
+      this.dateFormatter = new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC'
+      });
+      this.bindEvents();
+      this.renderAll();
+    }
   }
 
   cacheDOM() {
-    this.dom = {
-      projectForm: document.getElementById('projectForm'),
-      projectsGrid: document.getElementById('projectsGrid'),
-      stats: {
-        total: document.getElementById('totalProjects'),
-        completed: document.getElementById('completedProjects'),
-        pending: document.getElementById('pendingProjects'),
-      },
-      editModal: {
-        modal: document.getElementById('editModal'),
-        form: document.getElementById('editForm'),
-        closeBtn: document.getElementById('closeModalBtn'),
-        cancelBtn: document.getElementById('cancelEditBtn'),
-        id: document.getElementById('editProjectId'),
-        name: document.getElementById('editProjectName'),
-        type: document.getElementById('editProjectType'),
-        description: document.getElementById('editProjectDescription'),
-        startDate: document.getElementById('editStartDate'),
-        endDate: document.getElementById('editEndDate'),
-        steps: document.getElementById('editProjectSteps'),
-      }
+    this.dom = {};
+    this.dom.projectForm = document.getElementById('projectForm');
+    if (!this.dom.projectForm) return false; // Aborta se o formulário não existir
+
+    this.dom.projectsGrid = document.getElementById('projectsGrid');
+    this.dom.stats = {
+      total: document.getElementById('totalProjects'),
+      completed: document.getElementById('completedProjects'),
+      pending: document.getElementById('pendingProjects'),
     };
+    this.dom.editModal = {
+      modal: document.getElementById('editModal'),
+      form: document.getElementById('editForm'),
+      closeBtn: document.getElementById('closeModalBtn'),
+      cancelBtn: document.getElementById('cancelEditBtn'),
+      id: document.getElementById('editProjectId'),
+      name: document.getElementById('editProjectName'),
+      type: document.getElementById('editProjectType'),
+      description: document.getElementById('editProjectDescription'),
+      startDate: document.getElementById('editStartDate'),
+      endDate: document.getElementById('editEndDate'),
+      steps: document.getElementById('editProjectSteps'),
+    };
+    return true;
   }
 
   bindEvents() {
@@ -190,10 +178,10 @@ class ProjectOrganizer {
   saveToLocalStorage(isSilent = false) {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.projects));
-      if (!isSilent) this.showNotification('Progresso salvo automaticamente!', 'success');
+      if (!isSilent) this.showNotification('Progresso guardado!', 'success');
     } catch (error) {
-      console.error('Erro ao salvar no localStorage:', error);
-      if (!isSilent) this.showNotification('Erro ao salvar localmente.', 'error');
+      console.error('Erro ao guardar no localStorage:', error);
+      if (!isSilent) this.showNotification('Erro ao guardar localmente.', 'error');
     }
   }
 
@@ -217,7 +205,7 @@ class ProjectOrganizer {
     const stepsText = form.querySelector('#projectSteps').value.trim();
 
     if (!name || !type || !startDate || !endDate) {
-      this.showNotification('Preencha todos os campos obrigatórios.', 'error');
+      this.showNotification('Preencha os campos obrigatórios.', 'error');
       return;
     }
     if (new Date(endDate) < new Date(startDate)) {
@@ -227,11 +215,7 @@ class ProjectOrganizer {
 
     const project = {
       id: Date.now(),
-      name,
-      type,
-      description,
-      startDate,
-      endDate,
+      name, type, description, startDate, endDate,
       steps: stepsText ? stepsText.split('\n').map(text => ({ text: text.trim(), completed: false })).filter(s => s.text) : [],
       createdAt: new Date().toISOString()
     };
@@ -273,16 +257,16 @@ class ProjectOrganizer {
     this.saveToLocalStorage();
     this.renderAll();
     this.closeEditModal();
-    this.showNotification('Projeto atualizado com sucesso!', 'info');
+    this.showNotification('Projeto atualizado!', 'info');
   }
 
   deleteProject(projectId) {
     const project = this.projects.find(p => p.id === projectId);
-    if (project && confirm(`Tem certeza que deseja excluir o projeto "${project.name}"?`)) {
+    if (project && confirm(`Tem a certeza que deseja apagar o projeto "${project.name}"?`)) {
       this.projects = this.projects.filter(p => p.id !== projectId);
       this.saveToLocalStorage();
       this.renderAll();
-      this.showNotification('Projeto excluído!', 'warning');
+      this.showNotification('Projeto apagado!', 'warning');
     }
   }
 
@@ -314,52 +298,45 @@ class ProjectOrganizer {
   }
 
   renderProjects() {
-    this.projects.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    this.dom.projectsGrid.innerHTML =
-      this.projects.length > 0
+    this.projects.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Mais recentes primeiro
+    this.dom.projectsGrid.innerHTML = this.projects.length > 0
         ? this.projects.map(p => this.createProjectCard(p)).join('')
-        : '<div class="no-projects"><p>Nenhum projeto adicionado ainda.<br>Comece criando seu primeiro projeto!</p></div>';
+        : '<div class="card" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--fg-muted);">Nenhum projeto adicionado ainda.</div>';
   }
 
   createProjectCard(project) {
     const progress = this.calculateProgress(project.steps);
     const { days, isOverdue } = this.calculateDaysRemaining(project.endDate);
+    const overdueClass = isOverdue ? 'color: var(--danger-fg);' : '';
+    const dateLabel = isOverdue ? 'Atrasado há' : 'Restam';
+
     return `
-      <div class="project-card" data-project-id="${project.id}">
+      <div class="card project-card" data-project-id="${project.id}">
         <div class="project-header">
-          <div class="project-title">${project.name}</div>
-          <div class="project-type ${project.type}">${project.type}</div>
+          <span class="project-title">${project.name}</span>
+          <span class="project-type ${project.type}">${project.type}</span>
         </div>
-        <div class="project-description">${project.description || '<i>Sem descrição.</i>'}</div>
+        <p style="color: var(--fg-muted); flex-grow: 1;">${project.description || '<i>Sem descrição.</i>'}</p>
         <div class="project-dates">
-          <div class="date-item">
-            <div class="date-label">Início</div>
-            <div class="date-value">${this.formatDate(project.startDate)}</div>
-          </div>
-          <div class="date-item">
-            <div class="date-label">Conclusão</div>
-            <div class="date-value" style="color: ${isOverdue ? '#e74c3c' : 'var(--ghostwhite)'}">${this.formatDate(project.endDate)}</div>
-          </div>
-          <div class="date-item">
-            <div class="date-label">${isOverdue ? 'Atrasado há' : 'Restam'}</div>
-            <div class="date-value" style="color: ${isOverdue ? '#e74c3c' : '#27ae60'}">${days} dia${days !== 1 ? 's' : ''}</div>
-          </div>
+          <div><span class="date-label">Início</span><br>${this.formatDate(project.startDate)}</div>
+          <div><span class="date-label">Fim</span><br>${this.formatDate(project.endDate)}</div>
+          <div style="${overdueClass}"><span class="date-label">${dateLabel}</span><br>${days} dia(s)</div>
         </div>
         ${project.steps.length > 0 ? `
-        <div class="progress-section">
+        <div>
           <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
-          <div class="progress-text">${progress}% concluído</div>
+          <div style="font-size: 12px; color: var(--fg-muted);">${progress}% concluído</div>
         </div>
         <ul class="steps-list">
           ${project.steps.map((step, index) => `
             <li class="step-item ${step.completed ? 'completed' : ''}">
-              <input type="checkbox" class="step-checkbox" data-project-id="${project.id}" data-step-index="${index}" ${step.completed ? 'checked' : ''} aria-label="Marcar etapa '${step.text}'">
+              <input type="checkbox" class="step-checkbox" data-project-id="${project.id}" data-step-index="${index}" ${step.completed ? 'checked' : ''}>
               <span class="step-text">${step.text}</span>
             </li>`).join('')}
         </ul>` : ''}
         <div class="project-actions">
-          <button class="btn btn-edit" data-project-id="${project.id}" aria-label="Editar projeto ${project.name}">Editar</button>
-          <button class="btn btn-danger btn-delete" data-project-id="${project.id}" aria-label="Excluir projeto ${project.name}">Excluir</button>
+          <button class="btn btn-edit" data-project-id="${project.id}">Editar</button>
+          <button class="btn btn-danger btn-delete" data-project-id="${project.id}">Apagar</button>
         </div>
       </div>`;
   }
@@ -374,10 +351,9 @@ class ProjectOrganizer {
 
   showNotification(message, type = 'success') {
     const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
+    notification.className = `notification ${type} show`;
     notification.textContent = message;
     document.body.appendChild(notification);
-    setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => {
       notification.classList.remove('show');
       notification.addEventListener('transitionend', () => notification.remove());
@@ -386,7 +362,7 @@ class ProjectOrganizer {
 
   formatDate(dateString) {
     if (!dateString) return 'N/A';
-    const date = new Date(dateString + 'T00:00:00');
+    const date = new Date(dateString + 'T00:00:00'); // Trata a data como local
     return this.dateFormatter.format(date);
   }
 
@@ -399,36 +375,22 @@ class ProjectOrganizer {
   calculateDaysRemaining(endDateStr) {
     if (!endDateStr) return { days: 0, isOverdue: false };
     const now = new Date();
-    const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-    const [year, month, day] = endDateStr.split('-').map(Number);
-    const endDateUTC = Date.UTC(year, month - 1, day);
-    const dayDiff = Math.round((endDateUTC - todayUTC) / (1000 * 3600 * 24));
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endDate = new Date(endDateStr + 'T00:00:00');
+    const dayDiff = Math.ceil((endDate - today) / (1000 * 3600 * 24));
     return { days: Math.abs(dayDiff), isOverdue: dayDiff < 0 };
   }
 }
 
-// CÓDIGO CORRIGIDO E MAIS ROBUSTO
+/**
+ * Ponto de entrada da aplicação.
+ * Ouve o evento 'DOMContentLoaded' para garantir que o DOM está pronto.
+ * Instancia a classe correta dependendo da página atual.
+ */
 document.addEventListener('DOMContentLoaded', () => {
-  const path = window.location.pathname.split("/").pop();
-
-  if (path === 'index.html' || path === '') {
-    // Código para a página inicial
-    const projectLink = document.createElement('link');
-    projectLink.rel = 'prefetch';
-    projectLink.href = 'Project.html';
-    document.head.appendChild(projectLink);
-
-    const notepadLink = document.createElement('link');
-    notepadLink.rel = 'prefetch';
-    notepadLink.href = 'Notepad.html';
-    document.head.appendChild(notepadLink);
-
-  } else if (path === 'Notepad.html') {
-    // Inicia o notepad apenas na página de anotações
-    window.mugenNotepad = new MugenNotepad();
-
-  } else if (path === 'Project.html') {
-    // Inicia o organizador de projetos apenas na página de projetos
-    window.organizer = new ProjectOrganizer();
-  }
+  // Tenta inicializar ambas as classes.
+  // A lógica interna de cada classe irá garantir que ela só é executada
+  // se os seus elementos HTML específicos existirem na página.
+  new MugenNotepad();
+  new ProjectOrganizer();
 });
