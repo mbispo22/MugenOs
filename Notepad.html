@@ -5,33 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Language" content="pt-BR">
     <title>MugenOs - Anotações</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♾️</text></svg>">
-    <link rel="stylesheet" href="css/master.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="app-page theme-purple">
-    <mugen-menu></mugen-menu>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="nav-brand">MugenOs</a>
+            <div class="nav-links">
+                <a href="Notepad.html">Anotações</a>
+                <a href="Project.html">Projetos</a>
+            </div>
+        </nav>
+    </header>
 
-    <!-- Main Content -->
-    <div class="main-content">
-
-
+    <main class="container">
         <div class="notepad-container">
             <div class="notepad-header">
                 <div class="notepad-info">
-                    <span class="notepad-icon">📝</span>
                     <span class="notepad-title">Suas Anotações</span>
                 </div>
-                <div class="auto-save-status" id="autoSaveStatus">
-                    Auto-save ativo
-                </div>
+                <div class="auto-save-status" id="autoSaveStatus">Auto-save ativo</div>
             </div>
 
-            <textarea 
-                class="notepad-textarea" 
-                id="notepadTextarea" 
-                placeholder="Comece a escrever suas anotações aqui...
-
-💡 Dica: Suas anotações são salvas automaticamente no navegador."
+            <textarea
+                class="notepad-textarea"
+                id="notepadTextarea"
+                placeholder="Comece a escrever suas anotações aqui..."
             ></textarea>
 
             <div class="notepad-footer">
@@ -39,9 +38,8 @@
                 <div class="word-counter" id="wordCounter">0 palavras</div>
             </div>
         </div>
-    </div>
-    <script src="components/mugen-menu.js"></script>
-    <script src="js/app.js" defer></script>
+    </main>
 
+    <script src="js/app.js" defer></script>
 </body>
 </html>

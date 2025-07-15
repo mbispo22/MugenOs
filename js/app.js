@@ -318,7 +318,7 @@ class ProjectOrganizer {
     this.dom.projectsGrid.innerHTML =
       this.projects.length > 0
         ? this.projects.map(p => this.createProjectCard(p)).join('')
-        : '<div class="no-projects"><p>∞ Nenhum projeto adicionado ainda.<br>Comece criando seu primeiro projeto!</p></div>';
+        : '<div class="no-projects"><p>Nenhum projeto adicionado ainda.<br>Comece criando seu primeiro projeto!</p></div>';
   }
 
   createProjectCard(project) {
@@ -358,8 +358,8 @@ class ProjectOrganizer {
             </li>`).join('')}
         </ul>` : ''}
         <div class="project-actions">
-          <button class="btn btn-small btn-edit" data-project-id="${project.id}" aria-label="Editar projeto ${project.name}">✏️ Editar</button>
-          <button class="btn btn-small btn-danger btn-delete" data-project-id="${project.id}" aria-label="Excluir projeto ${project.name}">🗑️ Excluir</button>
+          <button class="btn btn-edit" data-project-id="${project.id}" aria-label="Editar projeto ${project.name}">Editar</button>
+          <button class="btn btn-danger btn-delete" data-project-id="${project.id}" aria-label="Excluir projeto ${project.name}">Excluir</button>
         </div>
       </div>`;
   }
@@ -408,21 +408,6 @@ class ProjectOrganizer {
 }
 
 function initIndexPage() {
-  const particles = document.querySelectorAll('.particle');
-  if (!particles.length) return;
-
-  document.addEventListener('mousemove', e => {
-    const x = e.clientX / window.innerWidth;
-    const y = e.clientY / window.innerHeight;
-    particles.forEach((particle, index) => {
-      const speed = (index + 1) * 0.5;
-      const xOffset = (x - 0.5) * speed;
-      const yOffset = (y - 0.5) * speed;
-      particle.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
-    });
-  });
-
-
   const projectLink = document.createElement('link');
   projectLink.rel = 'prefetch';
   projectLink.href = 'Project.html';
