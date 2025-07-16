@@ -1,9 +1,24 @@
+// js/app.js
+
+// Importa todos os "moldes" de estilo do novo arquivo css.js
+import {
+    appHeaderSheet,
+    projectCardSheet,
+    projectsListSheet,
+    addProjectFormSheet,
+    projectStatsSheet,
+    editProjectModalSheet,
+    notepadWidgetSheet
+} from './css.js';
+
 /* MugenOs Web Components */
 
 class AppHeader extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    // Aplica o "molde" de estilo ao componente
+    this.shadowRoot.adoptedStyleSheets = [appHeaderSheet];
   }
 
   connectedCallback() {
@@ -11,48 +26,8 @@ class AppHeader extends HTMLElement {
   }
 
   render() {
+    // Agora o innerHTML contém apenas o HTML
     this.shadowRoot.innerHTML = `
-      <style>
-        .header {
-          background: var(--bg-default);
-          border-bottom: 1px solid var(--border-default);
-          position: sticky;
-          top: 0;
-          z-index: 10;
-        }
-        .nav {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: 16px;
-        }
-        .nav-brand {
-          font-weight: 600;
-          font-size: 20px;
-          color: var(--fg-default);
-          /* INÍCIO DA ALTERAÇÃO: Efeito de gradiente na logo */
-          background: linear-gradient(135deg, #58a6ff 0%, #79c0ff 50%, #56d364 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-           /* FIM DA ALTERAÇÃO */
-        }
-        .nav-links a {
-          margin-left: 16px;
-          padding: 8px;
-          color: var(--accent-fg);
-          text-decoration: none;
-        }
-        .nav-links a:hover {
-          text-decoration: underline;
-        }
-        /* INÍCIO DA ALTERAÇÃO: Remove o sublinhado da logo */
-        .nav-brand:hover {
-            text-decoration: none;
-        }
-        /* FIM DA ALTERAÇÃO */
-      </style>
       <header class="header">
         <nav class="nav">
           <a href="index.html" class="nav-brand">MugenOs</a>
@@ -70,6 +45,7 @@ class ProjectCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this.shadowRoot.adoptedStyleSheets = [projectCardSheet];
   }
 
   set project(value) {
@@ -92,29 +68,6 @@ class ProjectCard extends HTMLElement {
     const overdueClass = isOverdue ? 'color: var(--danger-fg);' : '';
     const dateLabel = isOverdue ? 'Atrasado há' : 'Restam';
     this.shadowRoot.innerHTML = `
-      <style>
-        .card{background:linear-gradient(135deg,var(--bg-default) 0%,rgba(22,27,34,0.8) 100%);border:1px solid transparent;background-clip:padding-box;position:relative;gap:12px;padding:16px;border-radius:6px;display:flex;flex-direction:column;}
-        .card::before{content:'';position:absolute;inset:0;border-radius:6px;padding:1px;background:linear-gradient(135deg,var(--border-default),transparent);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;}
-        .project-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-        .project-title{font-weight:600;font-size:18px;}
-        .project-type{padding:2px 8px;border-radius:12px;font-size:12px;font-weight:500;text-transform:capitalize;border:1px solid;backdrop-filter:blur(10px);box-shadow:0 2px 4px rgba(0,0,0,0.2);}
-        .project-type.pessoal{color:#56d364;border-color:#56d364;background-color:rgba(56,139,69,0.15);}
-        .project-type.trabalho{color:#79c0ff;border-color:#79c0ff;background-color:rgba(57,133,228,0.15);}
-        .project-dates{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;font-size:12px;text-align:center;background:var(--bg-muted);padding:8px;border-radius:6px;}
-        .date-label{font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.5px;}
-        .project-actions{display:flex;gap:8px;margin-top:16px;}
-        .progress-bar{width:100%;height:8px;background:var(--bg-muted);border-radius:4px;overflow:hidden;margin-bottom:8px;}
-        .progress-fill{height:100%;border-radius:4px;transition:width 0.5s cubic-bezier(0.4,0,0.2,1);background:linear-gradient(90deg,var(--accent-fg),#79c0ff);position:relative;overflow:hidden;}
-        .steps-list{list-style:none;padding:0;margin:12px 0;}
-        .step-item{display:flex;align-items:center;gap:8px;padding:8px 0;transition:all 0.2s ease;}
-        .step-item.completed{opacity:0.6;}
-        .step-item.completed .step-text{text-decoration:line-through;color:var(--success-fg);}
-        .step-checkbox{appearance:none;width:20px;height:20px;border:2px solid var(--border-default);border-radius:4px;cursor:pointer;transition:all 0.2s ease;position:relative;}
-        .step-checkbox:checked{background:var(--success-fg);border-color:var(--success-fg);}
-        .step-checkbox:checked::after{content:'\u2713';position:absolute;color:white;font-weight:bold;top:50%;left:50%;transform:translate(-50%,-50%);}
-        .btn{background:#21262d;color:var(--fg-default);border:1px solid var(--border-default);border-radius:6px;padding:8px 16px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s ease;}
-        .btn-danger{background:var(--danger-fg);border-color:var(--danger-fg);color:#fff;}
-      </style>
       <div class="card">
         <div class="project-header">
           <span class="project-title">${p.name}</span>
@@ -179,6 +132,7 @@ class ProjectsList extends HTMLElement {
   constructor(){
     super();
     this.attachShadow({mode:'open'});
+    this.shadowRoot.adoptedStyleSheets = [projectsListSheet];
     this.projects=[];
   }
 
@@ -226,12 +180,7 @@ class ProjectsList extends HTMLElement {
   }
 
   render(){
-    this.shadowRoot.innerHTML=`
-      <style>
-        :host{display:block;}
-        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;}
-      </style>
-      <div class="grid"></div>`;
+    this.shadowRoot.innerHTML=`<div class="grid"></div>`;
     const grid=this.shadowRoot.querySelector('.grid');
     if(this.projects.length===0){
       grid.innerHTML='<div class="card" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--fg-muted);">Nenhum projeto adicionado ainda.</div>';
@@ -250,18 +199,14 @@ class ProjectsList extends HTMLElement {
 customElements.define('projects-list',ProjectsList);
 
 class AddProjectForm extends HTMLElement {
-  constructor(){super();this.attachShadow({mode:'open'});}
+  constructor(){
+    super();
+    this.attachShadow({mode:'open'});
+    this.shadowRoot.adoptedStyleSheets = [addProjectFormSheet];
+  }
   connectedCallback(){this.render();}
   render(){
     this.shadowRoot.innerHTML=`
-      <style>
-        form{display:flex;flex-direction:column;gap:16px;}
-        .form-row{display:flex;gap:16px;}
-        .form-group{flex:1;display:flex;flex-direction:column;}
-        label{margin-bottom:8px;font-weight:500;color:var(--fg-muted);}
-        input,select,textarea{padding:8px 12px;border:1px solid var(--border-default);border-radius:6px;font-family:'Fira Code',monospace;font-size:14px;background-color:var(--bg-canvas);color:var(--fg-default);}
-        button{background:var(--accent-emphasis);color:#fff;border:1px solid var(--accent-emphasis);border-radius:6px;padding:8px 16px;font-weight:500;cursor:pointer;}
-      </style>
       <h2 style="margin-bottom:20px;">Adicionar Novo Projeto</h2>
       <form id="form">
         <div class="form-row">
@@ -295,20 +240,23 @@ class AddProjectForm extends HTMLElement {
 customElements.define('add-project-form',AddProjectForm);
 
 class ProjectStats extends HTMLElement {
-  constructor(){super();this.attachShadow({mode:'open'});}
+  constructor(){
+    super();
+    this.attachShadow({mode:'open'});
+    this.shadowRoot.adoptedStyleSheets = [projectStatsSheet];
+  }
   set projects(arr){this._projects=arr||[];if(this.isConnected)this.render();}
   get projects(){return this._projects||[];}
   connectedCallback(){this.render();}
   render(){
     const total=this.projects.length;
-    const completed=this.projects.filter(p=>p.steps&&p.steps.every(s=>s.completed)).length;
+    const completed = this.projects.filter(p => {
+        if (!p.steps || p.steps.length === 0) return false;
+        const progress = Math.round((p.steps.filter(s => s.completed).length / p.steps.length) * 100);
+        return progress === 100;
+    }).length;
     const pending=total-completed;
     this.shadowRoot.innerHTML=`
-      <style>
-        .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
-        .stat-card{background:var(--bg-default);padding:16px;border-radius:6px;border:1px solid var(--border-default);text-align:center;}
-        .stat-number{font-size:24px;font-weight:600;}
-      </style>
       <div class="stats">
         <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total de Projetos</div></div>
         <div class="stat-card"><div class="stat-number">${completed}</div><div class="stat-label">Concluídos</div></div>
@@ -319,22 +267,14 @@ class ProjectStats extends HTMLElement {
 customElements.define('project-stats',ProjectStats);
 
 class EditProjectModal extends HTMLElement {
-  constructor(){super();this.attachShadow({mode:'open'});this._visible=false;}
+  constructor(){
+    super();
+    this.attachShadow({mode:'open'});
+    this.shadowRoot.adoptedStyleSheets = [editProjectModalSheet];
+  }
   connectedCallback(){this.render();}
   render(){
     this.shadowRoot.innerHTML=`
-      <style>
-        .modal{display:${this._visible?'flex':'none'};position:fixed;top:0;left:0;width:100%;height:100%;align-items:center;justify-content:center;z-index:1000;background:rgba(1,4,9,0.8);backdrop-filter:blur(8px);}
-        .modal-content{background:var(--bg-default);padding:24px;border-radius:6px;border:1px solid var(--border-default);box-shadow:var(--shadow-medium);width:90%;max-width:600px;max-height:90vh;overflow-y:auto;position:relative;animation:modalSlideIn 0.3s ease-out;}
-        .close-btn{position:absolute;top:16px;right:16px;font-size:24px;cursor:pointer;color:var(--fg-muted);}
-        form{display:flex;flex-direction:column;gap:16px;margin-top:20px;}
-        .form-row{display:flex;gap:16px;}
-        .form-group{flex:1;display:flex;flex-direction:column;}
-        label{margin-bottom:8px;font-weight:500;color:var(--fg-muted);}
-        input,select,textarea{padding:8px 12px;border:1px solid var(--border-default);border-radius:6px;font-family:'Fira Code',monospace;font-size:14px;background-color:var(--bg-canvas);color:var(--fg-default);}
-        button{background:var(--accent-emphasis);color:#fff;border:1px solid var(--accent-emphasis);border-radius:6px;padding:8px 16px;font-weight:500;cursor:pointer;}
-        .danger{background:var(--danger-fg);border-color:var(--danger-fg);}
-      </style>
       <div class="modal">
         <div class="modal-content">
           <span class="close-btn">&times;</span>
@@ -358,9 +298,11 @@ class EditProjectModal extends HTMLElement {
           </form>
         </div>
       </div>`;
-    this.shadowRoot.querySelector('.close-btn').addEventListener('click',()=>this.hide());
-    this.shadowRoot.querySelector('#cancel').addEventListener('click',()=>this.hide());
-    this.shadowRoot.querySelector('#form').addEventListener('submit',e=>{
+
+    const modal = this.shadowRoot.querySelector('.modal');
+    modal.querySelector('.close-btn').addEventListener('click',()=>this.hide());
+    modal.querySelector('#cancel').addEventListener('click',()=>this.hide());
+    modal.querySelector('#form').addEventListener('submit',e=>{
       e.preventDefault();
       const data={
         name:this.shadowRoot.querySelector('#name').value.trim(),
@@ -377,8 +319,7 @@ class EditProjectModal extends HTMLElement {
     });
   }
   open(project){
-    this._visible=true;
-    this.render();
+    this.shadowRoot.querySelector('.modal').classList.add('visible');
     this.shadowRoot.querySelector('#pid').value=project.id;
     this.shadowRoot.querySelector('#name').value=project.name;
     this.shadowRoot.querySelector('#type').value=project.type;
@@ -388,27 +329,22 @@ class EditProjectModal extends HTMLElement {
     this.shadowRoot.querySelector('#steps').value=project.steps.map(s=>s.text).join('\n');
   }
   hide(){
-    this._visible=false;
-    this.render();
+    this.shadowRoot.querySelector('.modal').classList.remove('visible');
   }
 }
 customElements.define('edit-project-modal',EditProjectModal);
 
 class NotepadWidget extends HTMLElement {
-  constructor(){super();this.attachShadow({mode:'open'});this.STORAGE_KEY='mugenNotepadData';this.autoSaveTimeout=null;}
+  constructor(){
+    super();
+    this.attachShadow({mode:'open'});
+    this.shadowRoot.adoptedStyleSheets = [notepadWidgetSheet];
+    this.STORAGE_KEY='mugenNotepadData';
+    this.autoSaveTimeout=null;
+  }
   connectedCallback(){this.render();this.loadNote();this.updateCounters();this.shadowRoot.querySelector('textarea').addEventListener('input',()=>{this.updateCounters();this.scheduleAutoSave();});}
   render(){
     this.shadowRoot.innerHTML=`
-      <style>
-        .container{background:var(--bg-default);border-radius:8px;border:1px solid var(--border-default);display:flex;flex-direction:column;height:calc(100vh - 140px);box-shadow:0 4px 6px rgba(0,0,0,0.1);}
-        .header{padding:16px;border-bottom:1px solid var(--border-default);display:flex;justify-content:space-between;align-items:center;background:rgba(22,27,34,0.5);}
-        .footer{padding:16px;border-top:1px solid var(--border-default);display:flex;justify-content:space-between;background:rgba(22,27,34,0.5);font-size:12px;color:var(--fg-muted);}
-        textarea{flex:1;border:1px solid var(--border-default);border-radius:6px;padding:24px;resize:vertical;font-family:'Fira Code',monospace;font-size:16px;background-color:var(--bg-default);color:var(--fg-default);}
-        textarea::placeholder{color:var(--fg-muted);opacity:0.5;}
-        .status{font-size:12px;color:var(--fg-muted);display:flex;align-items:center;gap:8px;}
-        .status.saving::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent-fg);animation:pulse 1s infinite;}
-        @keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8);}50%{opacity:1;transform:scale(1);}}
-      </style>
       <div class="container">
         <div class="header">
           <span class="title">Suas Anotações</span>
