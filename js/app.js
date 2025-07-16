@@ -13,11 +13,45 @@ class AppHeader extends HTMLElement {
   render() {
     this.shadowRoot.innerHTML = `
       <style>
-        .header{background:var(--bg-default);border-bottom:1px solid var(--border-default);position:sticky;top:0;z-index:10;}
-        .nav{display:flex;align-items:center;justify-content:space-between;max-width:1280px;margin:0 auto;padding:16px;}
-        .nav-brand{font-weight:600;font-size:20px;color:var(--fg-default);}
-        .nav-links a{margin-left:16px;padding:8px;color:var(--accent-fg);text-decoration:none;}
-        .nav-links a:hover{text-decoration:underline;}
+        .header {
+          background: var(--bg-default);
+          border-bottom: 1px solid var(--border-default);
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+        .nav {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 16px;
+        }
+        .nav-brand {
+          font-weight: 600;
+          font-size: 20px;
+          color: var(--fg-default);
+          /* INÍCIO DA ALTERAÇÃO: Efeito de gradiente na logo */
+          background: linear-gradient(135deg, #58a6ff 0%, #79c0ff 50%, #56d364 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+           /* FIM DA ALTERAÇÃO */
+        }
+        .nav-links a {
+          margin-left: 16px;
+          padding: 8px;
+          color: var(--accent-fg);
+          text-decoration: none;
+        }
+        .nav-links a:hover {
+          text-decoration: underline;
+        }
+        /* INÍCIO DA ALTERAÇÃO: Remove o sublinhado da logo */
+        .nav-brand:hover {
+            text-decoration: none;
+        }
+        /* FIM DA ALTERAÇÃO */
       </style>
       <header class="header">
         <nav class="nav">
@@ -77,7 +111,7 @@ class ProjectCard extends HTMLElement {
         .step-item.completed .step-text{text-decoration:line-through;color:var(--success-fg);}
         .step-checkbox{appearance:none;width:20px;height:20px;border:2px solid var(--border-default);border-radius:4px;cursor:pointer;transition:all 0.2s ease;position:relative;}
         .step-checkbox:checked{background:var(--success-fg);border-color:var(--success-fg);}
-        .step-checkbox:checked::after{content:'\2713';position:absolute;color:white;font-weight:bold;top:50%;left:50%;transform:translate(-50%,-50%);}
+        .step-checkbox:checked::after{content:'\u2713';position:absolute;color:white;font-weight:bold;top:50%;left:50%;transform:translate(-50%,-50%);}
         .btn{background:#21262d;color:var(--fg-default);border:1px solid var(--border-default);border-radius:6px;padding:8px 16px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s ease;}
         .btn-danger{background:var(--danger-fg);border-color:var(--danger-fg);color:#fff;}
       </style>
