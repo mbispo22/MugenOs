@@ -11,38 +11,10 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header class="header">
-        <nav class="nav">
-            <a href="index.html" class="nav-brand">MugenOs</a>
-            <div class="nav-links">
-                <a href="Notepad.html">Anotações</a>
-                <a href="Project.html">Projetos</a>
-            </div>
-        </nav>
-    </header>
+    <app-header></app-header>
 
-    <main class="container">
-        <div class="notepad-container">
-            <div class="notepad-header">
-                <div class="notepad-info">
-                    <span class="notepad-title">Suas Anotações</span>
-                </div>
-                <div class="auto-save-status" id="autoSaveStatus">Auto-save ativo</div>
-            </div>
+    <main class="container"><notepad-widget></notepad-widget></main>
 
-            <textarea
-                class="notepad-textarea"
-                id="notepadTextarea"
-                placeholder="Comece a escrever suas anotações aqui..."
-            ></textarea>
-
-            <div class="notepad-footer">
-                <div class="char-counter" id="charCounter">0 caracteres</div>
-                <div class="word-counter" id="wordCounter">0 palavras</div>
-            </div>
-        </div>
-    </main>
-
-    <script src="js/app.js" defer></script>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
