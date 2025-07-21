@@ -1,0 +1,76 @@
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 16px;
+    }
+    
+    .form-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    label {
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #C49BFF;
+    }
+    
+    input, select, textarea {
+        padding: 12px 16px;
+        border: 1px solid #3D2B52;
+        border-radius: 8px;
+        font-family: 'Fira Code', monospace;
+        font-size: 14px;
+        background-color: #1F1329;
+        color: #E8E3F3;
+        transition: all 0.2s ease;
+    }
+    
+    /* Tamanho específico para textarea de descrição (1 linha) */
+    textarea#desc {
+        min-height: 45px;
+        max-height: 45px;
+        resize: none;
+    }
+    
+    /* Tamanho específico para textarea de etapas (maior) */
+    textarea#steps {
+        min-height: 120px;
+    }
+    
+    /* Tamanho padrão para textareas */
+    textarea {
+        min-height: 120px;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #8956FB;
+        box-shadow: 0 0 0 3px rgba(137, 86, 251, 0.3);
+        background-color: #1A0F2E;
+    }
+    
+    button {
+        background: linear-gradient(135deg, #8956FB 0%, #6441A5 100%);
+        color: #fff;
+        border: 1px solid #6441A5;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 8px 24px rgba(137, 86, 251, 0.2);
+    }
+    
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 32px rgba(137, 86, 251, 0.3);
+    }
+`);
+

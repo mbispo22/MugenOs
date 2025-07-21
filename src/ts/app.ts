@@ -10,6 +10,7 @@ import {
     editProjectModalSheet,
     notepadWidgetSheet
 } from './css.ts';
+import { projectsStore, Project, Step } from './store.ts';
 
 import './notifications.ts';
 
@@ -67,44 +68,99 @@ class ProjectCard extends HTMLElement {
     const p = this._project;
     const progress = this.calculateProgress(p.steps);
     const { days, isOverdue } = this.calculateDaysRemaining(p.endDate);
-    const overdueClass = isOverdue ? 'color: var(--danger-fg);' : '';
     const dateLabel = isOverdue ? 'Atrasado há' : 'Restam';
-    this.shadowRoot.innerHTML = `
-      <div class="card">
-        <div class="project-header">
-          <span class="project-title">${p.name}</span>
-          <span class="project-type ${p.type}">${p.type}</span>
-        </div>
-        <p style="color:var(--fg-muted);flex-grow:1;">${p.description || '<i>Sem descrição.</i>'}</p>
-        <div class="project-dates">
-          <div><span class="date-label">Início</span><br>${this.formatDate(p.startDate)}</div>
-          <div><span class="date-label">Fim</span><br>${this.formatDate(p.endDate)}</div>
-          <div style="${overdueClass}"><span class="date-label">${dateLabel}</span><br>${days} dia(s)</div>
-        </div>
-        ${p.steps.length>0?`
-        <div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
-          <div style="font-size:12px;color:var(--fg-muted);">${progress}% concluído</div>
-        </div>
-        <ul class="steps-list">
-        ${p.steps.map((s,i)=>`<li class="step-item ${s.completed?'completed':''}"><input type="checkbox" class="step-checkbox" data-index="${i}" ${s.completed?'checked':''}><span class="step-text">${s.text}</span></li>`).join('')}
-        </ul>`:''}
-        <div class="project-actions">
-          <button class="btn btn-edit">Editar</button>
-          <button class="btn btn-danger btn-delete">Apagar</button>
-        </div>
-      </div>`;
 
-    this.shadowRoot.querySelector('.btn-delete').addEventListener('click',()=>{
-      this.dispatchEvent(new CustomEvent('delete-project',{bubbles:true,detail:{projectId:p.id}}));
+    this.shadowRoot.innerHTML = `<div class="card"></div>`;
+    const card = this.shadowRoot.querySelector('.card') as HTMLElement;
+
+    const header = document.createElement('div');
+    header.className = 'project-header';
+    const title = document.createElement('span');
+    title.className = 'project-title';
+    title.textContent = p.name;
+    const type = document.createElement('span');
+    type.className = `project-type ${p.type}`;
+    type.textContent = p.type;
+    header.append(title, type);
+    card.appendChild(header);
+
+    const desc = document.createElement('p');
+    desc.style.color = 'var(--fg-muted)';
+    desc.style.flexGrow = '1';
+    desc.textContent = p.description || 'Sem descrição.';
+    card.appendChild(desc);
+
+    const dates = document.createElement('div');
+    dates.className = 'project-dates';
+    const start = document.createElement('div');
+    start.innerHTML = '<span class="date-label">Início</span><br>';
+    start.appendChild(document.createTextNode(this.formatDate(p.startDate)));
+    const end = document.createElement('div');
+    end.innerHTML = '<span class="date-label">Fim</span><br>';
+    end.appendChild(document.createTextNode(this.formatDate(p.endDate)));
+    const remain = document.createElement('div');
+    if (isOverdue) remain.style.color = 'var(--danger-fg)';
+    remain.innerHTML = `<span class="date-label">${dateLabel}</span><br>`;
+    remain.appendChild(document.createTextNode(`${days} dia(s)`));
+    dates.append(start, end, remain);
+    card.appendChild(dates);
+
+    if (p.steps.length > 0) {
+      const progContainer = document.createElement('div');
+      const bar = document.createElement('div');
+      bar.className = 'progress-bar';
+      const fill = document.createElement('div');
+      fill.className = 'progress-fill';
+      fill.style.width = `${progress}%`;
+      bar.appendChild(fill);
+      progContainer.appendChild(bar);
+      const progText = document.createElement('div');
+      progText.style.fontSize = '12px';
+      progText.style.color = 'var(--fg-muted)';
+      progText.textContent = `${progress}% concluído`;
+      progContainer.appendChild(progText);
+      card.appendChild(progContainer);
+
+      const list = document.createElement('ul');
+      list.className = 'steps-list';
+      p.steps.forEach(s => {
+        const li = document.createElement('li');
+        li.className = `step-item ${s.completed ? 'completed' : ''}`;
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'step-checkbox';
+        cb.dataset.id = s.id;
+        if (s.completed) cb.checked = true;
+        const span = document.createElement('span');
+        span.className = 'step-text';
+        span.textContent = s.text;
+        li.append(cb, span);
+        list.appendChild(li);
+      });
+      card.appendChild(list);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'project-actions';
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn btn-edit';
+    editBtn.textContent = 'Editar';
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn btn-danger btn-delete';
+    deleteBtn.textContent = 'Apagar';
+    actions.append(editBtn, deleteBtn);
+    card.appendChild(actions);
+
+    deleteBtn.addEventListener('click', () => {
+      this.dispatchEvent(new CustomEvent('delete-project', { bubbles: true, detail: { projectId: p.id } }));
     });
-    this.shadowRoot.querySelector('.btn-edit').addEventListener('click',()=>{
-      this.dispatchEvent(new CustomEvent('edit-project',{bubbles:true,detail:{projectId:p.id}}));
+    editBtn.addEventListener('click', () => {
+      this.dispatchEvent(new CustomEvent('edit-project', { bubbles: true, detail: { projectId: p.id } }));
     });
-    this.shadowRoot.querySelectorAll('.step-checkbox').forEach(cb=>{
-      cb.addEventListener('change',()=>{
-        const index=parseInt(cb.dataset.index);
-        this.dispatchEvent(new CustomEvent('toggle-step',{bubbles:true,detail:{projectId:p.id,stepIndex:index}}));
+    card.querySelectorAll('.step-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const id = (cb as HTMLInputElement).dataset.id!;
+        this.dispatchEvent(new CustomEvent('toggle-step', { bubbles: true, detail: { projectId: p.id, stepId: id } }));
       });
     });
   }
@@ -115,17 +171,20 @@ class ProjectCard extends HTMLElement {
     return Math.round((completed/steps.length)*100);
   }
   formatDate(str){
-    if(!str)return 'N/A';
-    const date=new Date(str+'T00:00:00');
-    return new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'}).format(date);
+    if(!str) return 'N/A';
+    const d = this.parseDateUTC(str);
+    return new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'}).format(d);
   }
   calculateDaysRemaining(end){
     if(!end) return {days:0,isOverdue:false};
-    const now=new Date();
-    const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-    const endDate=new Date(end+'T00:00:00');
-    const diff=Math.ceil((endDate-today)/(1000*3600*24));
+    const today = this.parseDateUTC(new Date().toISOString().slice(0,10));
+    const endDate = this.parseDateUTC(end);
+    const diff=Math.ceil((endDate.getTime()-today.getTime())/(1000*3600*24));
     return {days:Math.abs(diff),isOverdue:diff<0};
+  }
+  parseDateUTC(str:string){
+    const [y,m,d]=str.split('-').map(Number);
+    return new Date(Date.UTC(y,m-1,d));
   }
 }
 customElements.define('project-card',ProjectCard);
@@ -139,46 +198,17 @@ class ProjectsList extends HTMLElement {
   }
 
   connectedCallback(){
-    this.load();
+    this.projects = projectsStore.getAll();
     this.render();
-    this.addEventListener('delete-project',e=>{this.deleteProject(e.detail.projectId);});
+    this.addEventListener('delete-project',e=>projectsStore.delete(e.detail.projectId));
     this.addEventListener('edit-project',e=>{this.dispatchEvent(new CustomEvent('edit-project',{bubbles:true,detail:e.detail}));});
-    this.addEventListener('toggle-step',e=>{this.toggleStep(e.detail.projectId,e.detail.stepIndex);});
+    this.addEventListener('toggle-step',e=>projectsStore.toggleStep(e.detail.projectId,e.detail.stepId));
+    projectsStore.addEventListener('change',e=>{this.projects=e.detail;this.render();});
   }
 
-  load(){
-    try{this.projects=JSON.parse(localStorage.getItem('mugenProjectsData'))||[]}catch(e){this.projects=[];}
-  }
-
-  save(){
-    localStorage.setItem('mugenProjectsData',JSON.stringify(this.projects));
-  }
-
-  addProject(proj){
-    this.projects.push(proj);
-    this.save();
-    this.render();
-  }
-
-  updateProject(id,data){
-    const idx=this.projects.findIndex(p=>p.id===id);
-    if(idx>-1){this.projects[idx]={...this.projects[idx],...data};this.save();this.render();}
-  }
-
-  deleteProject(id){
-    this.projects=this.projects.filter(p=>p.id!==id);
-    this.save();
-    this.render();
-    this.dispatchEvent(new CustomEvent('projects-changed',{bubbles:true,detail:this.projects}));
-  }
-
-  toggleStep(pid,idx){
-    const p=this.projects.find(p=>p.id===pid);
-    if(p&&p.steps[idx]){p.steps[idx].completed=!p.steps[idx].completed;this.save();this.render();}
-  }
 
   getProjectById(id){
-    return this.projects.find(p=>p.id===id);
+    return projectsStore.getById(id);
   }
 
   render(){
@@ -252,16 +282,18 @@ class AddProjectForm extends HTMLElement {
         return;
       }
       
-      const project={
+      const project: Project={
+        id: crypto.randomUUID(),
         name,
         type,
         description,
         startDate,
         endDate,
-        steps:stepsText?stepsText.split('\n').map(t=>({text:t.trim(),completed:false})).filter(s=>s.text):[]
+        steps:stepsText?stepsText.split('\n').map(t=>({id:crypto.randomUUID(),text:t.trim(),completed:false})).filter(s=>s.text):[],
+        createdAt:new Date().toISOString()
       };
-      
-      this.dispatchEvent(new CustomEvent('project-added',{bubbles:true,detail:project}));
+
+      projectsStore.add(project);
       this.shadowRoot.querySelector('#form').reset();
       
       // Notificação de sucesso
@@ -313,10 +345,10 @@ class EditProjectModal extends HTMLElement {
 
   render(){
     this.shadowRoot.innerHTML=`
-      <div class="modal">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
         <div class="modal-content">
           <span class="close-btn">&times;</span>
-          <h2>Editar Projeto</h2>
+          <h2 id="editTitle">Editar Projeto</h2>
           <form id="form">
             <input type="hidden" id="pid">
             <div class="form-row">
@@ -391,23 +423,20 @@ class EditProjectModal extends HTMLElement {
       }
 
       // CORREÇÃO PRINCIPAL: Preservar status das etapas existentes
-      const newSteps = stepsText ? 
+      const newSteps: Step[] = stepsText ?
         stepsText.split('\n')
-          .map(text => text.trim())
-          .filter(text => text.length > 0)
+          .map(t=>t.trim())
+          .filter(t=>t.length>0)
           .map((text, index) => {
-            // Procurar etapa existente com mesmo texto ou índice
-            const existingStep = this.currentProject?.steps?.find(step => 
-              step.text === text || this.currentProject.steps[index]?.text === text
-            );
-            
+            const existing = this.currentProject?.steps?.[index];
             return {
-              text: text,
-              completed: existingStep?.completed || false
+              id: existing?.id || crypto.randomUUID(),
+              text,
+              completed: existing?.completed || false
             };
           }) : [];
 
-      const data = {
+      const data: Partial<Project> = {
         name,
         type,
         description,
@@ -417,12 +446,9 @@ class EditProjectModal extends HTMLElement {
         updatedAt: new Date().toISOString()
       };
 
-      const id = parseInt(this.shadowRoot.querySelector('#pid').value);
-      
-      this.dispatchEvent(new CustomEvent('project-updated', {
-        bubbles: true,
-        detail: { projectId: id, data }
-      }));
+      const id = this.shadowRoot.querySelector('#pid').value;
+
+      projectsStore.update(id, data);
       
       window.notifications?.show('Projeto atualizado com sucesso!', 'success');
       this.hide();
@@ -665,24 +691,14 @@ customElements.define('notepad-widget',NotepadWidget);
 /* Orchestrate components on each page */
 document.addEventListener('DOMContentLoaded',()=>{
   const projectsList=document.querySelector('projects-list');
-  const addForm=document.querySelector('add-project-form');
   const stats=document.querySelector('project-stats');
   const modal=document.querySelector('edit-project-modal');
   if(projectsList){
-    stats.projects=projectsList.projects;
-    projectsList.addEventListener('projects-changed',e=>{stats.projects=e.detail;});
-    addForm.addEventListener('project-added',e=>{
-      const project={...e.detail,id:Date.now(),createdAt:new Date().toISOString()};
-      projectsList.addProject(project);
-      stats.projects=projectsList.projects;
-    });
+    stats.projects=projectsStore.getAll();
+    projectsStore.addEventListener('change',e=>{stats.projects=e.detail;});
     projectsList.addEventListener('edit-project',e=>{
-      const project=projectsList.getProjectById(e.detail.projectId);
+      const project=projectsStore.getById(e.detail.projectId);
       modal.open(project);
-    });
-    modal.addEventListener('project-updated',e=>{
-      projectsList.updateProject(e.detail.projectId,e.detail.data);
-      stats.projects=projectsList.projects;
     });
   }
 });
