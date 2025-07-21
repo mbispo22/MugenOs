@@ -11,6 +11,8 @@ import {
     notepadWidgetSheet
 } from './css.ts';
 
+import './notifications.ts';
+
 /* MugenOs Web Components */
 
 class AppHeader extends HTMLElement {
@@ -204,7 +206,11 @@ class AddProjectForm extends HTMLElement {
     this.attachShadow({mode:'open'});
     this.shadowRoot.adoptedStyleSheets = [addProjectFormSheet];
   }
-  connectedCallback(){this.render();}
+
+  connectedCallback(){
+    this.render();
+  }
+
   render(){
     this.shadowRoot.innerHTML=`
       <h2 style="margin-bottom:20px;">Adicionar Novo Projeto</h2>
@@ -221,6 +227,8 @@ class AddProjectForm extends HTMLElement {
         <div class="form-group"><label for="steps">Etapas do Projeto (uma por linha)</label><textarea id="steps" placeholder="Etapa 1\nEtapa 2\nEtapa 3"></textarea></div>
         <button type="submit">Adicionar Projeto</button>
       </form>`;
+
+    // Event listener com validações melhoradas
     this.shadowRoot.querySelector('#form').addEventListener('submit',e=>{
       e.preventDefault();
       const name=this.shadowRoot.querySelector('#name').value.trim();
@@ -229,11 +237,35 @@ class AddProjectForm extends HTMLElement {
       const startDate=this.shadowRoot.querySelector('#start').value;
       const endDate=this.shadowRoot.querySelector('#end').value;
       const stepsText=this.shadowRoot.querySelector('#steps').value.trim();
-      if(!name||!type||!startDate||!endDate)return;
-      if(new Date(endDate)<new Date(startDate))return;
-      const project={name,type,description,startDate,endDate,steps:stepsText?stepsText.split('\n').map(t=>({text:t.trim(),completed:false})).filter(s=>s.text):[]};
+      
+      // Validações melhoradas
+      if(!name||!type||!startDate||!endDate) {
+        window.notifications?.show('Preencha todos os campos obrigatórios', 'error');
+        return;
+      }
+      
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if(end < start) {
+        window.notifications?.show('Data de fim deve ser posterior à data de início', 'error');
+        return;
+      }
+      
+      const project={
+        name,
+        type,
+        description,
+        startDate,
+        endDate,
+        steps:stepsText?stepsText.split('\n').map(t=>({text:t.trim(),completed:false})).filter(s=>s.text):[]
+      };
+      
       this.dispatchEvent(new CustomEvent('project-added',{bubbles:true,detail:project}));
       this.shadowRoot.querySelector('#form').reset();
+      
+      // Notificação de sucesso
+      window.notifications?.show('Projeto adicionado com sucesso!', 'success');
     });
   }
 }
@@ -267,12 +299,18 @@ class ProjectStats extends HTMLElement {
 customElements.define('project-stats',ProjectStats);
 
 class EditProjectModal extends HTMLElement {
+  private currentProject: any = null;
+
   constructor(){
     super();
     this.attachShadow({mode:'open'});
     this.shadowRoot.adoptedStyleSheets = [editProjectModalSheet];
   }
-  connectedCallback(){this.render();}
+
+  connectedCallback(){
+    this.render();
+  }
+
   render(){
     this.shadowRoot.innerHTML=`
       <div class="modal">
@@ -282,15 +320,40 @@ class EditProjectModal extends HTMLElement {
           <form id="form">
             <input type="hidden" id="pid">
             <div class="form-row">
-              <div class="form-group"><label for="name">Nome do Projeto</label><input id="name" required></div>
-              <div class="form-group"><label for="type">Tipo</label><select id="type" required><option value="">Selecione o tipo</option><option value="pessoal">Pessoal</option><option value="trabalho">Trabalho</option></select></div>
+              <div class="form-group">
+                <label for="name">Nome do Projeto</label>
+                <input id="name" required>
+              </div>
+              <div class="form-group">
+                <label for="type">Tipo</label>
+                <select id="type" required>
+                  <option value="">Selecione o tipo</option>
+                  <option value="pessoal">Pessoal</option>
+                  <option value="trabalho">Trabalho</option>
+                </select>
+              </div>
             </div>
-            <div class="form-group"><label for="desc">Descrição</label><textarea id="desc" placeholder="Descreva o projeto..."></textarea></div>
+            <div class="form-group">
+              <label for="desc">Descrição</label>
+              <textarea id="desc" placeholder="Descreva o projeto..."></textarea>
+            </div>
             <div class="form-row">
-              <div class="form-group"><label for="start">Data de Início</label><input type="date" id="start" required></div>
-              <div class="form-group"><label for="end">Data de Conclusão</label><input type="date" id="end" required></div>
+              <div class="form-group">
+                <label for="start">Data de Início</label>
+                <input type="date" id="start" required>
+              </div>
+              <div class="form-group">
+                <label for="end">Data de Conclusão</label>
+                <input type="date" id="end" required>
+              </div>
             </div>
-            <div class="form-group"><label for="steps">Etapas do Projeto (uma por linha)</label><textarea id="steps" placeholder="Etapa 1\nEtapa 2\nEtapa 3"></textarea></div>
+            <div class="form-group">
+              <label for="steps">Etapas do Projeto (uma por linha)</label>
+              <textarea id="steps" placeholder="Etapa 1\nEtapa 2\nEtapa 3"></textarea>
+              <small style="color: var(--fg-muted); font-size: 12px; margin-top: 4px;">
+                ⚠️ Etapas já concluídas manterão seu status
+              </small>
+            </div>
             <div style="display:flex;gap:10px;justify-content:flex-end;">
               <button type="button" class="danger" id="cancel">Cancelar</button>
               <button type="submit">Salvar Alterações</button>
@@ -300,68 +363,302 @@ class EditProjectModal extends HTMLElement {
       </div>`;
 
     const modal = this.shadowRoot.querySelector('.modal');
-    modal.querySelector('.close-btn').addEventListener('click',()=>this.hide());
-    modal.querySelector('#cancel').addEventListener('click',()=>this.hide());
-    modal.querySelector('#form').addEventListener('submit',e=>{
+    modal.querySelector('.close-btn').addEventListener('click', () => this.hide());
+    modal.querySelector('#cancel').addEventListener('click', () => this.hide());
+    
+    modal.querySelector('#form').addEventListener('submit', e => {
       e.preventDefault();
-      const data={
-        name:this.shadowRoot.querySelector('#name').value.trim(),
-        type:this.shadowRoot.querySelector('#type').value,
-        description:this.shadowRoot.querySelector('#desc').value.trim(),
-        startDate:this.shadowRoot.querySelector('#start').value,
-        endDate:this.shadowRoot.querySelector('#end').value,
-        steps:this.shadowRoot.querySelector('#steps').value.trim()?this.shadowRoot.querySelector('#steps').value.trim().split('\n').map(t=>({text:t.trim(),completed:false})):[]
+      
+      const name = this.shadowRoot.querySelector('#name').value.trim();
+      const type = this.shadowRoot.querySelector('#type').value;
+      const description = this.shadowRoot.querySelector('#desc').value.trim();
+      const startDate = this.shadowRoot.querySelector('#start').value;
+      const endDate = this.shadowRoot.querySelector('#end').value;
+      const stepsText = this.shadowRoot.querySelector('#steps').value.trim();
+      
+      // Validações melhoradas
+      if (!name || !type || !startDate || !endDate) {
+        window.notifications?.show('Preencha todos os campos obrigatórios', 'error');
+        return;
+      }
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (end < start) {
+        window.notifications?.show('Data de fim deve ser posterior à data de início', 'error');
+        return;
+      }
+
+      // CORREÇÃO PRINCIPAL: Preservar status das etapas existentes
+      const newSteps = stepsText ? 
+        stepsText.split('\n')
+          .map(text => text.trim())
+          .filter(text => text.length > 0)
+          .map((text, index) => {
+            // Procurar etapa existente com mesmo texto ou índice
+            const existingStep = this.currentProject?.steps?.find(step => 
+              step.text === text || this.currentProject.steps[index]?.text === text
+            );
+            
+            return {
+              text: text,
+              completed: existingStep?.completed || false
+            };
+          }) : [];
+
+      const data = {
+        name,
+        type,
+        description,
+        startDate,
+        endDate,
+        steps: newSteps,
+        updatedAt: new Date().toISOString()
       };
-      const id=parseInt(this.shadowRoot.querySelector('#pid').value);
-      if(new Date(data.endDate)<new Date(data.startDate))return;
-      this.dispatchEvent(new CustomEvent('project-updated',{bubbles:true,detail:{projectId:id,data}}));
+
+      const id = parseInt(this.shadowRoot.querySelector('#pid').value);
+      
+      this.dispatchEvent(new CustomEvent('project-updated', {
+        bubbles: true,
+        detail: { projectId: id, data }
+      }));
+      
+      window.notifications?.show('Projeto atualizado com sucesso!', 'success');
       this.hide();
     });
   }
-  open(project){
+
+  open(project: any) {
+    this.currentProject = project; // Guardar referência do projeto atual
+    
     this.shadowRoot.querySelector('.modal').classList.add('visible');
-    this.shadowRoot.querySelector('#pid').value=project.id;
-    this.shadowRoot.querySelector('#name').value=project.name;
-    this.shadowRoot.querySelector('#type').value=project.type;
-    this.shadowRoot.querySelector('#desc').value=project.description;
-    this.shadowRoot.querySelector('#start').value=project.startDate;
-    this.shadowRoot.querySelector('#end').value=project.endDate;
-    this.shadowRoot.querySelector('#steps').value=project.steps.map(s=>s.text).join('\n');
+    this.shadowRoot.querySelector('#pid').value = project.id;
+    this.shadowRoot.querySelector('#name').value = project.name;
+    this.shadowRoot.querySelector('#type').value = project.type;
+    this.shadowRoot.querySelector('#desc').value = project.description || '';
+    this.shadowRoot.querySelector('#start').value = project.startDate;
+    this.shadowRoot.querySelector('#end').value = project.endDate;
+    
+    // Preencher etapas preservando ordem e status
+    const stepsText = project.steps?.map(s => s.text).join('\n') || '';
+    this.shadowRoot.querySelector('#steps').value = stepsText;
   }
-  hide(){
+
+  hide() {
     this.shadowRoot.querySelector('.modal').classList.remove('visible');
+    this.currentProject = null;
   }
 }
 customElements.define('edit-project-modal',EditProjectModal);
 
 class NotepadWidget extends HTMLElement {
+  private readonly STORAGE_KEY = 'mugenNotepadData';
+  private autoSaveTimeout: number | null = null;
+  private statusTimeout: number | null = null;
+  private lastSavedContent = '';
+
   constructor(){
     super();
     this.attachShadow({mode:'open'});
     this.shadowRoot.adoptedStyleSheets = [notepadWidgetSheet];
-    this.STORAGE_KEY='mugenNotepadData';
-    this.autoSaveTimeout=null;
   }
-  connectedCallback(){this.render();this.loadNote();this.updateCounters();this.shadowRoot.querySelector('textarea').addEventListener('input',()=>{this.updateCounters();this.scheduleAutoSave();});}
+
+  connectedCallback() {
+    this.render();
+    this.loadNote();
+    this.updateCounters();
+    
+    const textarea = this.shadowRoot.querySelector('textarea');
+    textarea.addEventListener('input', () => {
+      this.updateCounters();
+      this.scheduleAutoSave();
+    });
+
+    // Salvar antes de fechar a página
+    window.addEventListener('beforeunload', () => {
+      this.saveNote(true);
+    });
+  }
+
+  disconnectedCallback() {
+    // Cleanup ao remover componente
+    if (this.autoSaveTimeout) {
+      clearTimeout(this.autoSaveTimeout);
+    }
+    if (this.statusTimeout) {
+      clearTimeout(this.statusTimeout);
+    }
+    this.saveNote(true);
+  }
+
   render(){
     this.shadowRoot.innerHTML=`
       <div class="container">
         <div class="header">
           <span class="title">Suas Anotações</span>
-          <div class="status" id="status">Auto-save ativo</div>
+          <div class="status" id="status">
+            <span class="status-text">Auto-save ativo</span>
+            <span class="status-indicator"></span>
+          </div>
         </div>
-        <textarea id="text" placeholder="Comece a escrever suas anotações aqui..."></textarea>
+        <textarea 
+          id="text" 
+          placeholder="Comece a escrever suas anotações aqui..."
+          spellcheck="false"
+        ></textarea>
         <div class="footer">
-          <div class="chars" id="chars">0 caracteres</div>
-          <div class="words" id="words">0 palavras</div>
+          <div class="stats">
+            <div class="chars" id="chars">0 caracteres</div>
+            <div class="words" id="words">0 palavras</div>
+            <div class="lines" id="lines">0 linhas</div>
+          </div>
+          <div class="last-saved" id="lastSaved">Nunca salvo</div>
         </div>
       </div>`;
   }
-  loadNote(){try{const saved=localStorage.getItem(this.STORAGE_KEY);if(saved){this.shadowRoot.querySelector('#text').value=saved;}}catch(e){console.error(e);} }
-  saveNote(){try{localStorage.setItem(this.STORAGE_KEY,this.shadowRoot.querySelector('#text').value);this.showStatus('saved');}catch(e){console.error(e);this.showStatus('error');}}
-  scheduleAutoSave(){this.showStatus('saving');if(this.autoSaveTimeout)clearTimeout(this.autoSaveTimeout);this.autoSaveTimeout=setTimeout(()=>this.saveNote(),1500);}
-  showStatus(s){const el=this.shadowRoot.querySelector('#status');el.className='status';switch(s){case'saving':el.textContent='A guardar...';el.classList.add('saving');break;case'saved':el.textContent='Guardado';setTimeout(()=>{el.textContent='Auto-save ativo';el.classList.remove('saved');},2000);break;case'error':el.textContent='Erro ao guardar';break;}}
-  updateCounters(){const text=this.shadowRoot.querySelector('#text').value;const chars=text.length;const words=text.trim()?text.trim().split(/\s+/).length:0;this.shadowRoot.querySelector('#chars').textContent=`${chars.toLocaleString()} caracteres`;this.shadowRoot.querySelector('#words').textContent=`${words.toLocaleString()} palavras`;}
+
+  loadNote() {
+    try {
+      const saved = localStorage.getItem(this.STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        const textarea = this.shadowRoot.querySelector('#text');
+        textarea.value = data.content || '';
+        this.lastSavedContent = data.content || '';
+        
+        if (data.savedAt) {
+          this.updateLastSaved(new Date(data.savedAt));
+        }
+      }
+    } catch (e) {
+      console.error('Erro ao carregar anotações:', e);
+      window.notifications?.show('Erro ao carregar anotações', 'error');
+    }
+  }
+
+  saveNote(immediate = false) {
+    const textarea = this.shadowRoot.querySelector('#text');
+    const content = textarea.value;
+    
+    if (content === this.lastSavedContent && !immediate) {
+      return;
+    }
+
+    try {
+      const data = {
+        content: content,
+        savedAt: new Date().toISOString(),
+        wordCount: this.getWordCount(content),
+        charCount: content.length
+      };
+      
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+      this.lastSavedContent = content;
+      this.showStatus('saved');
+      this.updateLastSaved(new Date());
+      
+    } catch (e) {
+      console.error('Erro ao salvar anotações:', e);
+      this.showStatus('error');
+      
+      if (e.name === 'QuotaExceededError') {
+        window.notifications?.show('Espaço de armazenamento esgotado!', 'error');
+      } else {
+        window.notifications?.show('Erro ao salvar anotações', 'error');
+      }
+    }
+  }
+
+  scheduleAutoSave() {
+    this.showStatus('saving');
+    
+    if (this.autoSaveTimeout) {
+      clearTimeout(this.autoSaveTimeout);
+    }
+    
+    this.autoSaveTimeout = setTimeout(() => {
+      this.saveNote();
+      this.autoSaveTimeout = null;
+    }, 1500);
+  }
+
+  showStatus(status: 'saving' | 'saved' | 'error') {
+    const statusEl = this.shadowRoot.querySelector('#status');
+    const textEl = statusEl.querySelector('.status-text');
+    
+    if (this.statusTimeout) {
+      clearTimeout(this.statusTimeout);
+    }
+    
+    statusEl.className = 'status';
+    
+    switch (status) {
+      case 'saving':
+        textEl.textContent = 'A guardar...';
+        statusEl.classList.add('saving');
+        break;
+        
+      case 'saved':
+        textEl.textContent = 'Guardado';
+        statusEl.classList.add('saved');
+        
+        this.statusTimeout = setTimeout(() => {
+          textEl.textContent = 'Auto-save ativo';
+          statusEl.classList.remove('saved');
+        }, 2000);
+        break;
+        
+      case 'error':
+        textEl.textContent = 'Erro ao guardar';
+        statusEl.classList.add('error');
+        
+        this.statusTimeout = setTimeout(() => {
+          textEl.textContent = 'Auto-save ativo';
+          statusEl.classList.remove('error');
+        }, 3000);
+        break;
+    }
+  }
+
+  updateCounters() {
+    const text = this.shadowRoot.querySelector('#text').value;
+    const chars = text.length;
+    const words = this.getWordCount(text);
+    const lines = text ? text.split('\n').length : 0;
+    
+    this.shadowRoot.querySelector('#chars').textContent = 
+      `${chars.toLocaleString('pt-BR')} caracteres`;
+    this.shadowRoot.querySelector('#words').textContent = 
+      `${words.toLocaleString('pt-BR')} palavras`;
+    this.shadowRoot.querySelector('#lines').textContent = 
+      `${lines.toLocaleString('pt-BR')} linhas`;
+  }
+
+  private getWordCount(text: string): number {
+    if (!text.trim()) return 0;
+    return text.trim().split(/\s+/).length;
+  }
+
+  private updateLastSaved(date: Date) {
+    const lastSavedEl = this.shadowRoot.querySelector('#lastSaved');
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    
+    if (diffMinutes < 1) {
+      lastSavedEl.textContent = 'Salvo agora';
+    } else if (diffMinutes < 60) {
+      lastSavedEl.textContent = `Salvo há ${diffMinutes}m`;
+    } else {
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours < 24) {
+        lastSavedEl.textContent = `Salvo há ${diffHours}h`;
+      } else {
+        lastSavedEl.textContent = date.toLocaleDateString('pt-BR');
+      }
+    }
+  }
 }
 customElements.define('notepad-widget',NotepadWidget);
 

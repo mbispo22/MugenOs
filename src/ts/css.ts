@@ -362,19 +362,19 @@ export const addProjectFormSheet = createSheet(`
         transition: all 0.2s ease;
     }
     
-    /* Tamanho específico para textarea de descrição (1 linha) no modal */
+    /* Tamanho específico para textarea de descrição (1 linha) */
     textarea#desc {
         min-height: 45px;
         max-height: 45px;
         resize: none;
     }
     
-    /* Tamanho específico para textarea de etapas (maior) no modal */
+    /* Tamanho específico para textarea de etapas (maior) */
     textarea#steps {
         min-height: 120px;
     }
     
-    /* Tamanho específico para textarea de etapas */
+    /* Tamanho padrão para textareas */
     textarea {
         min-height: 120px;
     }
@@ -533,6 +533,18 @@ export const editProjectModalSheet = createSheet(`
         transition: all 0.2s ease;
     }
     
+    /* Tamanho específico para textarea de descrição no modal */
+    textarea#desc {
+        min-height: 45px;
+        max-height: 45px;
+        resize: none;
+    }
+    
+    /* Tamanho específico para textarea de etapas no modal */
+    textarea#steps {
+        min-height: 120px;
+    }
+    
     input:focus, select:focus, textarea:focus {
         outline: none;
         border-color: #8956FB;
@@ -580,6 +592,7 @@ export const editProjectModalSheet = createSheet(`
     }
 `);
 
+// 🎯 NOTEPAD WIDGET COM TODAS AS MELHORIAS APLICADAS
 export const notepadWidgetSheet = createSheet(`
     .container {
         background: linear-gradient(135deg, #1A0F2E 0%, rgba(26, 15, 46, 0.8) 100%);
@@ -589,6 +602,7 @@ export const notepadWidgetSheet = createSheet(`
         flex-direction: column;
         height: calc(100vh - 140px);
         overflow: hidden;
+        box-shadow: 0 8px 24px rgba(137, 86, 251, 0.2);
     }
     
     .header {
@@ -598,6 +612,7 @@ export const notepadWidgetSheet = createSheet(`
         justify-content: space-between;
         align-items: center;
         background: #1F1329;
+        backdrop-filter: blur(10px);
     }
     
     .footer {
@@ -605,9 +620,17 @@ export const notepadWidgetSheet = createSheet(`
         border-top: 1px solid #3D2B52;
         display: flex;
         justify-content: space-between;
+        align-items: center;
         background: #1F1329;
         font-size: 12px;
         color: #B8A9D1;
+        backdrop-filter: blur(10px);
+    }
+    
+    .stats {
+        display: flex;
+        gap: 16px;
+        align-items: center;
     }
     
     .title {
@@ -627,11 +650,16 @@ export const notepadWidgetSheet = createSheet(`
         color: #E8E3F3;
         outline: none;
         line-height: 1.6;
+        transition: all 0.3s ease;
     }
     
     textarea::placeholder {
         color: #B8A9D1;
         opacity: 0.5;
+    }
+    
+    textarea:focus {
+        background: rgba(26, 15, 46, 0.8);
     }
     
     .status {
@@ -640,19 +668,57 @@ export const notepadWidgetSheet = createSheet(`
         display: flex;
         align-items: center;
         gap: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
     }
     
-    .status.saving::before {
+    .status.saving {
+        color: #F59E0B;
+    }
+    
+    .status.saved {
+        color: #10B981;
+    }
+    
+    .status.error {
+        color: #EF4444;
+    }
+    
+    .status.saving .status-indicator::before {
         content: '';
         width: 8px;
         height: 8px;
         border-radius: 50%;
         background: #8956FB;
+        display: inline-block;
         animation: pulse 1s infinite;
     }
     
-    .chars, .words {
+    .last-saved {
         color: #9A87B5;
+        font-style: italic;
+        font-size: 11px;
+        opacity: 0.8;
+    }
+    
+    .chars, .words, .lines {
+        color: #9A87B5;
+        font-weight: 500;
+    }
+    
+    .chars::before {
+        content: '📝 ';
+        opacity: 0.6;
+    }
+    
+    .words::before {
+        content: '📊 ';
+        opacity: 0.6;
+    }
+    
+    .lines::before {
+        content: '📄 ';
+        opacity: 0.6;
     }
     
     @keyframes pulse {
@@ -664,5 +730,24 @@ export const notepadWidgetSheet = createSheet(`
             opacity: 1;
             transform: scale(1);
         }
+    }
+    
+    /* Scrollbar personalizada para o textarea */
+    textarea::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    textarea::-webkit-scrollbar-track {
+        background: #2A1B3D;
+        border-radius: 4px;
+    }
+    
+    textarea::-webkit-scrollbar-thumb {
+        background: #8956FB;
+        border-radius: 4px;
+    }
+    
+    textarea::-webkit-scrollbar-thumb:hover {
+        background: #A370FF;
     }
 `);

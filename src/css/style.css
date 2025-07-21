@@ -467,6 +467,12 @@ a:hover {
     background-clip: text;
 }
 
+.stat-label {
+    color: var(--fg-muted);
+    font-size: 14px;
+    margin-top: 4px;
+}
+
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -685,7 +691,64 @@ a:hover {
     box-shadow: var(--shadow-glow);
 }
 
-/* Bloco de notas */
+/* 🎯 SISTEMA DE NOTIFICAÇÕES - CSS PARA O NOTIFICATIONS.TS */
+.notifications-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification {
+    background: var(--gradient-primary);
+    color: #fff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-large);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    max-width: 350px;
+    position: relative;
+    cursor: pointer;
+    border-left: 4px solid var(--accent-fg);
+    overflow: hidden;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification.success {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    border-left-color: #10B981;
+}
+
+.notification.error {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    border-left-color: #EF4444;
+}
+
+.notification.warning {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    border-left-color: #F59E0B;
+}
+
+.notification.info {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    border-left-color: #3B82F6;
+}
+
+.notification:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Bloco de notas - ESTILOS MELHORADOS */
 .notepad-container {
     background: var(--gradient-card);
     border-radius: 16px;
@@ -694,6 +757,7 @@ a:hover {
     flex-direction: column;
     height: calc(100vh - 140px);
     overflow: hidden;
+    box-shadow: 0 8px 24px rgba(137, 86, 251, 0.2);
 }
 
 .notepad-header {
@@ -703,6 +767,7 @@ a:hover {
     justify-content: space-between;
     align-items: center;
     background: var(--bg-elevated);
+    backdrop-filter: blur(10px);
 }
 
 .notepad-footer {
@@ -710,9 +775,11 @@ a:hover {
     border-top: 1px solid var(--border-default);
     display: flex;
     justify-content: space-between;
+    align-items: center;
     background: var(--bg-elevated);
     font-size: 12px;
     color: var(--fg-muted);
+    backdrop-filter: blur(10px);
 }
 
 .notepad-title {
@@ -731,6 +798,8 @@ a:hover {
     background: var(--bg-default);
     color: var(--fg-default);
     outline: none;
+    line-height: 1.6;
+    transition: all 0.3s ease;
 }
 
 .notepad-textarea::placeholder {
@@ -738,13 +807,31 @@ a:hover {
     opacity: 0.5;
 }
 
-/* Indicador de auto-save */
+.notepad-textarea:focus {
+    background: rgba(26, 15, 46, 0.8);
+}
+
+/* Indicadores de status do notepad */
 .auto-save-status {
     font-size: 12px;
     color: var(--fg-muted);
     display: flex;
     align-items: center;
     gap: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.auto-save-status.saving {
+    color: #F59E0B;
+}
+
+.auto-save-status.saved {
+    color: #10B981;
+}
+
+.auto-save-status.error {
+    color: #EF4444;
 }
 
 .auto-save-status.saving::before {
@@ -754,37 +841,45 @@ a:hover {
     border-radius: 50%;
     background: var(--accent-fg);
     animation: pulse 1s infinite;
+    display: inline-block;
 }
 
-/* Notificações */
-.notification {
-    background: var(--gradient-primary);
-    color: #fff;
-    padding: 16px 20px;
-    border-radius: 12px;
-    box-shadow: var(--shadow-large);
-    opacity: 0;
-    transform: translateX(100%);
-    transition: all 0.3s ease;
-    z-index: 2000;
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    max-width: 300px;
-    border: 1px solid var(--border-default);
+/* Contadores do notepad */
+.notepad-stats {
+    display: flex;
+    gap: 16px;
+    align-items: center;
 }
 
-.notification.show {
-    opacity: 1;
-    transform: translateX(0);
+.notepad-counter {
+    color: var(--fg-subtle);
+    font-weight: 500;
+    font-size: 11px;
+    opacity: 0.8;
 }
 
-.notification.error {
-    background: var(--danger-fg);
+.notepad-counter::before {
+    opacity: 0.6;
+    margin-right: 4px;
 }
 
-.notification.success {
-    background: var(--success-fg);
+.chars::before {
+    content: '📝';
+}
+
+.words::before {
+    content: '📊';
+}
+
+.lines::before {
+    content: '📄';
+}
+
+.last-saved {
+    color: var(--fg-subtle);
+    font-style: italic;
+    font-size: 11px;
+    opacity: 0.8;
 }
 
 /* Estados de foco */
@@ -819,6 +914,25 @@ a:hover {
 
 [data-tooltip]:hover::after {
     opacity: 1;
+}
+
+/* Scrollbar personalizada para textareas */
+textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+    background: var(--bg-muted);
+    border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background: var(--primary-purple);
+    border-radius: 4px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-purple-light);
 }
 
 /* Animações */
@@ -909,6 +1023,49 @@ a:hover {
         margin: 0;
         padding: 8px 12px;
     }
+    
+    .notepad-footer {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+    
+    .notepad-stats {
+        justify-content: center;
+    }
+    
+    .notifications-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+    
+    .notification {
+        max-width: none;
+    }
+}
+
+/* Responsividade para telas pequenas */
+@media (max-width: 480px) {
+    .notepad-container {
+        height: calc(100vh - 100px);
+    }
+    
+    .notepad-header {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+    
+    .hero h1 {
+        font-size: clamp(1.8rem, 8vw, 2.5rem);
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
 }
 
 /* Melhorias de acessibilidade */
@@ -929,4 +1086,69 @@ a:hover {
         --border-default: #ffffff;
         --accent-fg: #ffffff;
     }
+}
+
+/* Estados de loading e erro */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--accent-fg);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Estados de erro */
+.error-state {
+    border-color: var(--danger-fg) !important;
+    background-color: var(--danger-bg) !important;
+}
+
+.error-message {
+    color: var(--danger-fg);
+    font-size: 12px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.error-message::before {
+    content: '⚠️';
+}
+
+/* Estados de sucesso */
+.success-state {
+    border-color: var(--success-fg) !important;
+    background-color: var(--success-bg) !important;
+}
+
+.success-message {
+    color: var(--success-fg);
+    font-size: 12px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.success-message::before {
+    content: '✅';
 }
