@@ -1,7 +1,3 @@
-Claro\! Com base na modernização do seu projeto e nas boas práticas para documentação, reescrevi o seu `README.md` para ser mais claro, atrativo e útil, tanto para você quanto para futuros colaboradores.
-
-Aqui está uma nova versão:
-
 -----
 
 \<div align="center"\>
