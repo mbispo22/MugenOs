@@ -1,15 +1,8 @@
------
+# MugenOs (無限)
 
-\<div align="center"\>
-\<br /\>
-\<h1\>MugenOs (無限)\</h1\>
-\<strong\>Um sistema infinito para a sua organização pessoal.\</strong\>
-\<br /\>
-\<br /\>
-\<p\>Organize projetos, anotações e, em breve, as suas finanças e compromissos. Tudo num só lugar, com uma interface limpa e focada na produtividade.\</p\>
-\</div\>
+**Um sistema infinito para a sua organização pessoal.**
 
------
+Organize projetos, anotações e, em breve, as suas finanças e compromissos. Tudo num só lugar, com uma interface limpa e focada na produtividade.
 
 ### ✨ Funcionalidades
 
