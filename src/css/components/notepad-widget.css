@@ -1,0 +1,158 @@
+export const notepadWidgetSheet = createSheet(`
+    .container {
+        background: linear-gradient(135deg, #1A0F2E 0%, rgba(26, 15, 46, 0.8) 100%);
+        border-radius: 16px;
+        border: 1px solid #3D2B52;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 140px);
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(137, 86, 251, 0.2);
+    }
+    
+    .header {
+        padding: 16px;
+        border-bottom: 1px solid #3D2B52;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #1F1329;
+        backdrop-filter: blur(10px);
+    }
+    
+    .footer {
+        padding: 16px;
+        border-top: 1px solid #3D2B52;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #1F1329;
+        font-size: 12px;
+        color: #B8A9D1;
+        backdrop-filter: blur(10px);
+    }
+    
+    .stats {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+    
+    .title {
+        font-weight: 600;
+        font-size: 16px;
+        color: #C49BFF;
+    }
+    
+    textarea {
+        flex: 1;
+        border: none;
+        padding: 24px;
+        resize: none;
+        font-family: 'Fira Code', monospace;
+        font-size: 16px;
+        background: #1A0F2E;
+        color: #E8E3F3;
+        outline: none;
+        line-height: 1.6;
+        transition: all 0.3s ease;
+    }
+    
+    textarea::placeholder {
+        color: #B8A9D1;
+        opacity: 0.5;
+    }
+    
+    textarea:focus {
+        background: rgba(26, 15, 46, 0.8);
+    }
+    
+    .status {
+        font-size: 12px;
+        color: #B8A9D1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .status.saving {
+        color: #F59E0B;
+    }
+    
+    .status.saved {
+        color: #10B981;
+    }
+    
+    .status.error {
+        color: #EF4444;
+    }
+    
+    .status.saving .status-indicator::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #8956FB;
+        display: inline-block;
+        animation: pulse 1s infinite;
+    }
+    
+    .last-saved {
+        color: #9A87B5;
+        font-style: italic;
+        font-size: 11px;
+        opacity: 0.8;
+    }
+    
+    .chars, .words, .lines {
+        color: #9A87B5;
+        font-weight: 500;
+    }
+    
+    .chars::before {
+        content: '📝 ';
+        opacity: 0.6;
+    }
+    
+    .words::before {
+        content: '📊 ';
+        opacity: 0.6;
+    }
+    
+    .lines::before {
+        content: '📄 ';
+        opacity: 0.6;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    /* Scrollbar personalizada para o textarea */
+    textarea::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    textarea::-webkit-scrollbar-track {
+        background: #2A1B3D;
+        border-radius: 4px;
+    }
+    
+    textarea::-webkit-scrollbar-thumb {
+        background: #8956FB;
+        border-radius: 4px;
+    }
+    
+    textarea::-webkit-scrollbar-thumb:hover {
+        background: #A370FF;
+    }
+`);
