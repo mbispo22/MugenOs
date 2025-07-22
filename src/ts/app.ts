@@ -10,7 +10,7 @@ import {
     editProjectModalSheet,
     notepadWidgetSheet
 } from './css.ts';
-import { projectsStore, Project, Step } from './store.ts';
+import { projectsStore, type Project, type Step } from './store.ts';
 
 import './notifications.ts';
 
