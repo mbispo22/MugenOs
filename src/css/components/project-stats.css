@@ -1,37 +1,35 @@
-    .stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-    
-    .stat-card {
-        background: linear-gradient(135deg, #1A0F2E 0%, rgba(26, 15, 46, 0.8) 100%);
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #3D2B52;
-        text-align: center;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-1px);
-        border-color: #8956FB;
-    }
-    
-    .stat-number {
-        font-size: 28px;
-        font-weight: 600;
-        background: linear-gradient(90deg, #8956FB 0%, #C49BFF 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    
-    .stat-label {
-        color: #B8A9D1;
-        font-size: 14px;
-        margin-top: 4px;
-    }
-`);
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
 
+.stat-card {
+    background: linear-gradient(135deg, #1A0F2E 0%, rgba(26, 15, 46, 0.8) 100%);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #3D2B52;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-1px);
+    border-color: #8956FB;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 600;
+    background: linear-gradient(90deg, #8956FB 0%, #C49BFF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-label {
+    color: #B8A9D1;
+    font-size: 14px;
+    margin-top: 4px;
+}

@@ -1,18 +1,18 @@
-    :host {
-        display: block;
-    }
-    
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 20px;
-    }
-    
-    .card {
-        background: linear-gradient(135deg, #1A0F2E 0%, rgba(26, 15, 46, 0.8) 100%);
-        border: 1px solid #3D2B52;
-        border-radius: 12px;
-        padding: 20px;
-        text-align: center;
-        color: #B8A9D1;
-    }
+:host {
+    display: block;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: linear-gradient(135deg, #1A0F2E 0%, rgba(26, 15, 46, 0.8) 100%);
+    border: 1px solid #3D2B52;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    color: #B8A9D1;
+}

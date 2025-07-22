@@ -1,55 +1,54 @@
-    .header {
-        background: linear-gradient(135deg, #1A0F2E 0%, rgba(26, 15, 46, 0.95) 100%);
-        border-bottom: 1px solid #3D2B52;
-        box-shadow: 0 2px 4px rgba(137, 86, 251, 0.1);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        backdrop-filter: blur(10px);
-    }
-    
-    .nav {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 16px;
-    }
-    
-    .nav-brand {
-        font-weight: 600;
-        font-size: 20px;
-        background: linear-gradient(90deg, #8956FB 0%, #C49BFF 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        transition: all 0.3s ease;
-    }
-    
-    .nav-brand:hover {
-        text-decoration: none;
-        filter: brightness(1.1);
-    }
-    
-    .nav-links a {
-        margin-left: 16px;
-        padding: 8px 16px;
-        border-radius: 8px;
-        color: #C49BFF;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        font-weight: 500;
-        background: transparent;
-        border: 1px solid #3D2B52;
-    }
-    
-    .nav-links a:hover {
-        color: white;
-        text-decoration: none;
-        background: linear-gradient(90deg, #8956FB 0%, #C49BFF 100%);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transform: translateY(-1px);
-        border-color: #8956FB;
-    }
-`);
+.header {
+    background: linear-gradient(135deg, #1A0F2E 0%, rgba(26, 15, 46, 0.95) 100%);
+    border-bottom: 1px solid #3D2B52;
+    box-shadow: 0 2px 4px rgba(137, 86, 251, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.nav-brand {
+    font-weight: 600;
+    font-size: 20px;
+    background: linear-gradient(90deg, #8956FB 0%, #C49BFF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: all 0.3s ease;
+}
+
+.nav-brand:hover {
+    text-decoration: none;
+    filter: brightness(1.1);
+}
+
+.nav-links a {
+    margin-left: 16px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: #C49BFF;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    background: transparent;
+    border: 1px solid #3D2B52;
+}
+
+.nav-links a:hover {
+    color: white;
+    text-decoration: none;
+    background: linear-gradient(90deg, #8956FB 0%, #C49BFF 100%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    border-color: #8956FB;
+}
