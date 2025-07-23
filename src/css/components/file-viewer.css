@@ -19,6 +19,12 @@
     backdrop-filter: blur(10px);
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 .footer {
     padding: 16px;
     border-top: 1px solid #3D2B52;

@@ -9,7 +9,7 @@ Organize projetos, anotações e, em breve, as suas finanças e compromissos. Tu
 | Módulo | Status | Descrição |
 | :--- | :--- | :--- |
 | 📙 **Projetos** | ✅ **Funcional** | Crie e gira projetos com etapas, prazos e acompanhamento visual do progresso. |
-| 📝 **Anotações** | ✅ **Funcional** | Um bloco de notas simples e rápido para capturar as suas ideias, com salvamento automático. |
+| 📙 **Editor** | ✅ **Funcional** | Um editor de arquivos com visualizador de Markdown e uma estrutura de repositório lateral. |
 | 💸 **Despesas** | 🚧 **Em Desenvolvimento** | Em breve, um módulo completo para controlo financeiro, com categorias e relatórios. |
 | 📅 **Compromissos** | 🚧 **Em Desenvolvimento** | A sua futura agenda integrada, com calendário, lembretes e priorização de tarefas. |
 

@@ -8,7 +8,7 @@ import {
     addProjectFormSheet,
     projectStatsSheet,
     editProjectModalSheet,
-    notepadWidgetSheet
+    fileViewerSheet
 } from './css.ts';
 import { projectsStore, type Project, type Step } from './store.ts';
 
@@ -35,7 +35,7 @@ class AppHeader extends HTMLElement {
         <nav class="nav">
           <a href="index.html" class="nav-brand">MugenOs</a>
           <div class="nav-links">
-            <a href="Notepad.html">Anotações</a>
+            <a href="Editor.html">Editor</a>
             <a href="Project.html">Projetos</a>
           </div>
         </nav>
@@ -478,33 +478,204 @@ class EditProjectModal extends HTMLElement {
 }
 customElements.define('edit-project-modal',EditProjectModal);
 
-class NotepadWidget extends HTMLElement {
+class RepositorySidebar extends HTMLElement {
+  private mockFileSystem = [
+    { id: '1', name: 'BoasVindas.md', type: 'file', content: '# MugenOs Editor\n\nSelecione um arquivo para começar.' },
+    { 
+      id: '2', 
+      name: 'Projetos', 
+      type: 'folder', 
+      children: [
+        { id: '3', name: 'Ideias.txt', type: 'file', content: '- Conquistar o mundo\n- Aprender TypeScript\n- Criar o melhor sistema de organização' },
+        { 
+          id: '4', 
+          name: 'Financeiro', 
+          type: 'folder', 
+          children: [
+            { id: '5', name: 'planejamento.md', type: 'file', content: '## Orçamento 2025\n\n### Receitas\n- Salário: R$ 5.000\n- Freelance: R$ 1.500\n\n### Despesas\n- Aluguel: R$ 1.200\n- Alimentação: R$ 800' }
+          ]
+        }
+      ]
+    }
+  ];
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
+  connectedCallback() {
+    this.render();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          background: var(--gradient-card);
+          border: 1px solid var(--border-default);
+          border-radius: 12px;
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          box-shadow: var(--shadow-medium);
+        }
+        
+        .sidebar-header {
+          font-weight: 600;
+          font-size: 14px;
+          color: var(--fg-accent);
+          margin-bottom: 12px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid var(--border-default);
+        }
+        
+        .file-tree {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        
+        .file-item {
+          padding: 6px 8px;
+          margin: 2px 0;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+        }
+        
+        .file-item:hover {
+          background: rgba(137, 86, 251, 0.1);
+        }
+        
+        .file-item.file {
+          color: var(--fg-default);
+        }
+        
+        .file-item.folder {
+          color: var(--fg-accent);
+          font-weight: 500;
+        }
+        
+        .file-icon {
+          font-size: 12px;
+          width: 16px;
+          text-align: center;
+        }
+        
+        .nested {
+          margin-left: 16px;
+        }
+      </style>
+      <div class="sidebar-header">📁 Arquivos</div>
+      <ul class="file-tree">
+        ${this.renderFileTree(this.mockFileSystem)}
+      </ul>
+    `;
+    
+    this.attachEventListeners();
+  }
+
+  renderFileTree(items, isNested = false) {
+    return items.map(item => {
+      if (item.type === 'file') {
+        return `
+          <li class="file-item file" data-id="${item.id}">
+            <span class="file-icon">📄</span>
+            <span>${item.name}</span>
+          </li>
+        `;
+      } else {
+        return `
+          <li class="file-item folder">
+            <span class="file-icon">📁</span>
+            <span>${item.name}</span>
+          </li>
+          ${item.children ? `<ul class="nested">${this.renderFileTree(item.children, true)}</ul>` : ''}
+        `;
+      }
+    }).join('');
+  }
+
+  attachEventListeners() {
+    const fileItems = this.shadowRoot.querySelectorAll('.file-item.file');
+    fileItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const fileId = item.dataset.id;
+        const file = this.findFileById(fileId, this.mockFileSystem);
+        if (file) {
+          this.dispatchEvent(new CustomEvent('file-selected', {
+            bubbles: true,
+            composed: true,
+            detail: { file }
+          }));
+        }
+      });
+    });
+  }
+
+  findFileById(id, items) {
+    for (const item of items) {
+      if (item.id === id) {
+        return item;
+      }
+      if (item.children) {
+        const found = this.findFileById(id, item.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+}
+customElements.define('repository-sidebar', RepositorySidebar);
+
+class FileViewer extends HTMLElement {
   private readonly STORAGE_KEY = 'mugenNotepadData';
   private autoSaveTimeout: number | null = null;
   private statusTimeout: number | null = null;
   private lastSavedContent = '';
+  private currentFile: any = null;
+  private isNewFile: boolean = true;
 
   constructor(){
     super();
     this.attachShadow({mode:'open'});
-    this.shadowRoot.adoptedStyleSheets = [notepadWidgetSheet];
+    this.shadowRoot.adoptedStyleSheets = [fileViewerSheet];
   }
 
   connectedCallback() {
     this.render();
     this.loadNote();
     this.updateCounters();
+    this.attachTextareaListeners();
     
-    const textarea = this.shadowRoot.querySelector('textarea');
-    textarea.addEventListener('input', () => {
+    // Listen for file selection events
+    window.addEventListener('file-selected', (event: CustomEvent) => {
+      this.currentFile = event.detail.file;
+      this.isNewFile = false;
+      this.render();
       this.updateCounters();
-      this.scheduleAutoSave();
+      this.attachTextareaListeners();
     });
 
     // Salvar antes de fechar a página
     window.addEventListener('beforeunload', () => {
       this.saveNote(true);
     });
+  }
+
+  attachTextareaListeners() {
+    const textarea = this.shadowRoot.querySelector('textarea');
+    if (textarea) {
+      textarea.addEventListener('input', () => {
+        this.updateCounters();
+        this.scheduleAutoSave();
+      });
+    }
   }
 
   disconnectedCallback() {
@@ -519,20 +690,27 @@ class NotepadWidget extends HTMLElement {
   }
 
   render(){
+    const saveButtonText = this.isNewFile ? 'Salvar Como' : 'Salvar';
+    const currentFileName = this.currentFile ? this.currentFile.name : 'Novo arquivo';
+    const currentContent = this.currentFile ? this.currentFile.content : '';
+    
     this.shadowRoot.innerHTML=`
       <div class="container">
         <div class="header">
-          <span class="title">Suas Anotações</span>
-          <div class="status" id="status">
-            <span class="status-text">Auto-save ativo</span>
-            <span class="status-indicator"></span>
+          <span class="title">${currentFileName}</span>
+          <div class="header-actions">
+            <button class="btn btn-primary" id="saveBtn">${saveButtonText}</button>
+            <div class="status" id="status">
+              <span class="status-text">Auto-save ativo</span>
+              <span class="status-indicator"></span>
+            </div>
           </div>
         </div>
         <textarea 
           id="text" 
           placeholder="Comece a escrever suas anotações aqui..."
           spellcheck="false"
-        ></textarea>
+        >${currentContent}</textarea>
         <div class="footer">
           <div class="stats">
             <div class="chars" id="chars">0 caracteres</div>
@@ -542,6 +720,13 @@ class NotepadWidget extends HTMLElement {
           <div class="last-saved" id="lastSaved">Nunca salvo</div>
         </div>
       </div>`;
+      
+    // Add save button event listener
+    const saveBtn = this.shadowRoot.querySelector('#saveBtn');
+    saveBtn.addEventListener('click', () => {
+      console.log('Action:', saveButtonText, 'File:', this.currentFile);
+      this.saveNote(true);
+    });
   }
 
   loadNote() {
@@ -686,7 +871,7 @@ class NotepadWidget extends HTMLElement {
     }
   }
 }
-customElements.define('notepad-widget',NotepadWidget);
+customElements.define('file-viewer',FileViewer);
 
 /* Orchestrate components on each page */
 document.addEventListener('DOMContentLoaded',()=>{

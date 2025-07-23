@@ -13,7 +13,10 @@
 <body>
     <app-header></app-header>
 
-    <main class="container"><notepad-widget></notepad-widget></main>
+    <main class="container editor-layout">
+        <repository-sidebar></repository-sidebar>
+        <file-viewer></file-viewer>
+    </main>
 
     <script type="module" src="/src/ts/app.ts"></script>
 </body>
