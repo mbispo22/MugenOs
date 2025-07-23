@@ -1,22 +1,19 @@
 .container {
-    background: linear-gradient(135deg, #1A0F2E 0%, rgba(26, 15, 46, 0.8) 100%);
-    border-radius: 16px;
-    border: 1px solid #3D2B52;
+    background: transparent;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 140px);
+    height: 100%;
     overflow: hidden;
-    box-shadow: 0 8px 24px rgba(137, 86, 251, 0.2);
 }
 
 .header {
-    padding: 16px;
-    border-bottom: 1px solid #3D2B52;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-default);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #1F1329;
-    backdrop-filter: blur(10px);
+    background: transparent;
+    min-height: 35px;
 }
 
 .header-actions {
@@ -26,15 +23,15 @@
 }
 
 .footer {
-    padding: 16px;
-    border-top: 1px solid #3D2B52;
+    padding: 4px 16px;
+    border-top: 1px solid var(--border-default);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #1F1329;
+    background: transparent;
     font-size: 12px;
-    color: #B8A9D1;
-    backdrop-filter: blur(10px);
+    color: var(--fg-default);
+    min-height: 22px;
 }
 
 .stats {
@@ -44,37 +41,93 @@
 }
 
 .title {
-    font-weight: 600;
-    font-size: 16px;
-    color: #C49BFF;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--fg-default);
+}
+
+/* Editor com numeração de linhas */
+.editor-container {
+    flex: 1;
+    display: flex;
+    background: transparent;
+    overflow: hidden;
+}
+
+.line-numbers {
+    background: transparent;
+    border-right: 1px solid var(--border-default);
+    padding: 10px 8px 10px 8px;
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    color: var(--fg-muted);
+    text-align: right;
+    user-select: none;
+    min-width: 50px;
+    line-height: 1.5;
+    overflow: hidden;
+    white-space: pre;
 }
 
 textarea {
     flex: 1;
     border: none;
-    padding: 24px;
+    padding: 10px 16px 10px 16px;
     resize: none;
     font-family: 'Fira Code', monospace;
-    font-size: 16px;
-    background: #1A0F2E;
-    color: #E8E3F3;
+    font-size: 14px;
+    background: transparent;
+    color: var(--fg-default);
     outline: none;
-    line-height: 1.6;
-    transition: all 0.3s ease;
+    line-height: 1.5;
+    overflow-y: auto;
+    caret-color: var(--primary-purple);
 }
 
 textarea::placeholder {
-    color: #B8A9D1;
-    opacity: 0.5;
+    color: var(--fg-muted);
+    opacity: 0.6;
 }
 
+/* Focus and active line highlighting */
 textarea:focus {
-    background: rgba(26, 15, 46, 0.8);
+    outline: none;
+    background-color: transparent;
+    /* Active line would need JS implementation for proper line highlighting */
+}
+
+/* Text selection styling with MugenOs colors */
+textarea::selection,
+.content-display::selection {
+    background-color: rgba(100, 65, 165, 0.5);
+    color: var(--fg-default);
+}
+
+/* Scrollbar styling with theme colors */
+textarea::-webkit-scrollbar,
+.content-display::-webkit-scrollbar {
+    width: 12px;
+}
+
+textarea::-webkit-scrollbar-track,
+.content-display::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb,
+.content-display::-webkit-scrollbar-thumb {
+    background: var(--primary-purple);
+    border-radius: 6px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover,
+.content-display::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-purple-light);
 }
 
 .status {
     font-size: 12px;
-    color: #B8A9D1;
+    color: var(--fg-muted);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -83,15 +136,15 @@ textarea:focus {
 }
 
 .status.saving {
-    color: #F59E0B;
+    color: var(--warning-fg);
 }
 
 .status.saved {
-    color: #10B981;
+    color: var(--success-fg);
 }
 
 .status.error {
-    color: #EF4444;
+    color: var(--danger-fg);
 }
 
 .status.saving .status-indicator::before {
@@ -99,36 +152,33 @@ textarea:focus {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #8956FB;
+    background: var(--primary-purple);
     display: inline-block;
     animation: pulse 1s infinite;
 }
 
 .last-saved {
-    color: #9A87B5;
-    font-style: italic;
-    font-size: 11px;
-    opacity: 0.8;
+    color: var(--fg-default);
+    font-style: normal;
+    font-size: 12px;
+    opacity: 0.9;
 }
 
 .chars, .words, .lines {
-    color: #9A87B5;
-    font-weight: 500;
+    color: var(--fg-default);
+    font-weight: 400;
 }
 
 .chars::before {
-    content: '📝 ';
-    opacity: 0.6;
+    content: '';
 }
 
 .words::before {
-    content: '📊 ';
-    opacity: 0.6;
+    content: '';
 }
 
 .lines::before {
-    content: '📄 ';
-    opacity: 0.6;
+    content: '';
 }
 
 @keyframes pulse {
@@ -142,21 +192,50 @@ textarea:focus {
     }
 }
 
-/* Scrollbar personalizada para o textarea */
-textarea::-webkit-scrollbar {
-    width: 8px;
+
+/* Read-only content display */
+.content-display {
+    flex: 1;
+    padding: 10px 16px 10px 16px;
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    background: transparent;
+    color: var(--fg-default);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    word-wrap: break-word;
 }
 
-textarea::-webkit-scrollbar-track {
-    background: #2A1B3D;
-    border-radius: 4px;
+
+/* Empty state styling */
+.empty-state {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--fg-muted);
+    font-style: italic;
+    padding: 48px;
+    background: transparent;
 }
 
-textarea::-webkit-scrollbar-thumb {
-    background: #8956FB;
-    border-radius: 4px;
+/* Basic Markdown syntax highlighting for future-proofing */
+.content-display {
+    /* Headers */
+    background-image: linear-gradient(
+        transparent,
+        transparent
+    );
 }
 
-textarea::-webkit-scrollbar-thumb:hover {
-    background: #A370FF;
+/* This is basic - real syntax highlighting would require a proper parser */
+.markdown-hash {
+    color: var(--accent-fg);
+    font-weight: bold;
+}
+
+.markdown-list {
+    color: var(--accent-fg);
 }

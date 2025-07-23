@@ -479,6 +479,7 @@ class EditProjectModal extends HTMLElement {
 customElements.define('edit-project-modal',EditProjectModal);
 
 class RepositorySidebar extends HTMLElement {
+  private activeFileId: string | null = null;
   private mockFileSystem = [
     { id: '1', name: 'BoasVindas.md', type: 'file', content: '# MugenOs Editor\n\nSelecione um arquivo para começar.' },
     { 
@@ -512,66 +513,98 @@ class RepositorySidebar extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
-          background: var(--gradient-card);
-          border: 1px solid var(--border-default);
-          border-radius: 12px;
-          padding: 16px;
+          background: transparent;
+          border-right: 1px solid var(--border-default);
+          padding: 0;
           display: flex;
           flex-direction: column;
-          box-shadow: var(--shadow-medium);
+          height: 100%;
+          color: #cccccc;
         }
         
         .sidebar-header {
-          font-weight: 600;
-          font-size: 14px;
-          color: var(--fg-accent);
-          margin-bottom: 12px;
-          padding-bottom: 8px;
-          border-bottom: 1px solid var(--border-default);
+          font-weight: 500;
+          font-size: 11px;
+          color: #cccccc;
+          padding: 16px 12px 8px 16px;
+          border-bottom: 1px solid #2d2d30;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        .new-file-btn {
+          font-size: 12px;
+          padding: 4px 8px;
+          background: #007acc;
+          color: white;
+          border: none;
+          border-radius: 2px;
+          cursor: pointer;
+          transition: background 0.2s ease;
+          text-transform: none;
+          letter-spacing: 0;
+        }
+        
+        .new-file-btn:hover {
+          background: #1177bb;
         }
         
         .file-tree {
           list-style: none;
           padding: 0;
           margin: 0;
+          flex-grow: 1;
+          overflow-y: auto;
         }
         
         .file-item {
-          padding: 6px 8px;
-          margin: 2px 0;
-          border-radius: 6px;
+          padding: 4px 16px;
+          margin: 0;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: background 0.2s ease;
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           font-size: 13px;
+          line-height: 22px;
         }
         
         .file-item:hover {
-          background: rgba(137, 86, 251, 0.1);
+          background: #2a2d2e;
         }
         
         .file-item.file {
-          color: var(--fg-default);
+          color: #cccccc;
+        }
+        
+        .file-item.file.active {
+          background: #37373d;
+          color: #ffffff;
         }
         
         .file-item.folder {
-          color: var(--fg-accent);
-          font-weight: 500;
+          color: #cccccc;
+          font-weight: 400;
         }
         
         .file-icon {
-          font-size: 12px;
+          font-size: 14px;
           width: 16px;
           text-align: center;
+          opacity: 0.8;
         }
         
         .nested {
-          margin-left: 16px;
+          margin-left: 20px;
         }
       </style>
-      <div class="sidebar-header">📁 Arquivos</div>
+      <div class="sidebar-header">
+        <span>Explorer</span>
+        <button class="new-file-btn" id="newFileBtn">+</button>
+      </div>
       <ul class="file-tree">
         ${this.renderFileTree(this.mockFileSystem)}
       </ul>
@@ -583,8 +616,9 @@ class RepositorySidebar extends HTMLElement {
   renderFileTree(items, isNested = false) {
     return items.map(item => {
       if (item.type === 'file') {
+        const isActive = this.activeFileId === item.id;
         return `
-          <li class="file-item file" data-id="${item.id}">
+          <li class="file-item file ${isActive ? 'active' : ''}" data-id="${item.id}">
             <span class="file-icon">📄</span>
             <span>${item.name}</span>
           </li>
@@ -602,12 +636,15 @@ class RepositorySidebar extends HTMLElement {
   }
 
   attachEventListeners() {
+    // File selection event listeners
     const fileItems = this.shadowRoot.querySelectorAll('.file-item.file');
     fileItems.forEach(item => {
       item.addEventListener('click', () => {
         const fileId = item.dataset.id;
         const file = this.findFileById(fileId, this.mockFileSystem);
         if (file) {
+          this.activeFileId = fileId;
+          this.render(); // Re-render to update active state
           this.dispatchEvent(new CustomEvent('file-selected', {
             bubbles: true,
             composed: true,
@@ -616,6 +653,19 @@ class RepositorySidebar extends HTMLElement {
         }
       });
     });
+
+    // New file button event listener
+    const newFileBtn = this.shadowRoot.querySelector('#newFileBtn');
+    if (newFileBtn) {
+      newFileBtn.addEventListener('click', () => {
+        this.activeFileId = null;
+        this.render(); // Re-render to clear active state
+        this.dispatchEvent(new CustomEvent('new-file', {
+          bubbles: true,
+          composed: true
+        }));
+      });
+    }
   }
 
   findFileById(id, items) {
@@ -634,12 +684,9 @@ class RepositorySidebar extends HTMLElement {
 customElements.define('repository-sidebar', RepositorySidebar);
 
 class FileViewer extends HTMLElement {
-  private readonly STORAGE_KEY = 'mugenNotepadData';
-  private autoSaveTimeout: number | null = null;
-  private statusTimeout: number | null = null;
-  private lastSavedContent = '';
   private currentFile: any = null;
   private isNewFile: boolean = true;
+  private isEditing: boolean = false;
 
   constructor(){
     super();
@@ -649,7 +696,6 @@ class FileViewer extends HTMLElement {
 
   connectedCallback() {
     this.render();
-    this.loadNote();
     this.updateCounters();
     this.attachTextareaListeners();
     
@@ -657,193 +703,176 @@ class FileViewer extends HTMLElement {
     window.addEventListener('file-selected', (event: CustomEvent) => {
       this.currentFile = event.detail.file;
       this.isNewFile = false;
+      this.isEditing = false;
       this.render();
       this.updateCounters();
       this.attachTextareaListeners();
     });
 
-    // Salvar antes de fechar a página
-    window.addEventListener('beforeunload', () => {
-      this.saveNote(true);
+    // Listen for new file events
+    window.addEventListener('new-file', () => {
+      this.currentFile = null;
+      this.isNewFile = true;
+      this.isEditing = true;
+      this.render();
+      this.updateCounters();
+      this.attachTextareaListeners();
     });
+
   }
 
   attachTextareaListeners() {
-    const textarea = this.shadowRoot.querySelector('textarea');
+    const textarea = this.shadowRoot.querySelector('#text') as HTMLTextAreaElement;
     if (textarea) {
       textarea.addEventListener('input', () => {
         this.updateCounters();
-        this.scheduleAutoSave();
+        this.updateLineNumbers();
+      });
+      
+      // Sync scroll between textarea and line numbers
+      textarea.addEventListener('scroll', () => {
+        const lineNumbers = this.shadowRoot.querySelector('#lineNumbers');
+        if (lineNumbers) {
+          lineNumbers.scrollTop = textarea.scrollTop;
+        }
       });
     }
   }
 
-  disconnectedCallback() {
-    // Cleanup ao remover componente
-    if (this.autoSaveTimeout) {
-      clearTimeout(this.autoSaveTimeout);
+  updateLineNumbers() {
+    const textarea = this.shadowRoot.querySelector('#text') as HTMLTextAreaElement;
+    const lineNumbers = this.shadowRoot.querySelector('#lineNumbers');
+    
+    if (textarea && lineNumbers) {
+      const lines = textarea.value.split('\n');
+      const numbers = lines.map((_, i) => i + 1).join('\n');
+      lineNumbers.textContent = numbers;
     }
-    if (this.statusTimeout) {
-      clearTimeout(this.statusTimeout);
-    }
-    this.saveNote(true);
   }
 
+
   render(){
-    const saveButtonText = this.isNewFile ? 'Salvar Como' : 'Salvar';
     const currentFileName = this.currentFile ? this.currentFile.name : 'Novo arquivo';
     const currentContent = this.currentFile ? this.currentFile.content : '';
+    
+    // Determine what buttons to show
+    const showEditButton = !this.isEditing && this.currentFile;
+    const showSaveButton = this.isEditing;
+    const saveButtonText = this.isNewFile ? 'Salvar Como' : 'Salvar';
     
     this.shadowRoot.innerHTML=`
       <div class="container">
         <div class="header">
           <span class="title">${currentFileName}</span>
           <div class="header-actions">
-            <button class="btn btn-primary" id="saveBtn">${saveButtonText}</button>
-            <div class="status" id="status">
-              <span class="status-text">Auto-save ativo</span>
-              <span class="status-indicator"></span>
-            </div>
+            ${showEditButton ? '<button class="btn" id="editBtn">Editar</button>' : ''}
+            ${showSaveButton ? `<button class="btn btn-primary" id="saveBtn">${saveButtonText}</button>` : ''}
           </div>
         </div>
-        <textarea 
-          id="text" 
-          placeholder="Comece a escrever suas anotações aqui..."
-          spellcheck="false"
-        >${currentContent}</textarea>
+        ${this.renderContent(currentContent)}
         <div class="footer">
           <div class="stats">
             <div class="chars" id="chars">0 caracteres</div>
             <div class="words" id="words">0 palavras</div>
             <div class="lines" id="lines">0 linhas</div>
           </div>
-          <div class="last-saved" id="lastSaved">Nunca salvo</div>
         </div>
       </div>`;
       
-    // Add save button event listener
+    // Add event listeners
+    this.attachButtonEventListeners(saveButtonText);
+  }
+
+  renderContent(content: string): string {
+    if (!this.currentFile && !this.isEditing) {
+      // Empty state - no file selected
+      return '<div class="empty-state">Selecione um arquivo no painel à esquerda para visualizá-lo.</div>';
+    }
+    
+    if (this.isEditing) {
+      // Edit mode - show textarea with line numbers
+      const placeholder = this.isNewFile ? 
+        'Digite o conteúdo do novo arquivo...' : 
+        'Edite o conteúdo do arquivo...';
+      const lines = content.split('\n');
+      const lineNumbers = lines.map((_, i) => i + 1).join('\n');
+      
+      return `<div class="editor-container">
+        <div class="line-numbers" id="lineNumbers">${lineNumbers}</div>
+        <textarea 
+          id="text" 
+          placeholder="${placeholder}"
+          spellcheck="false"
+        >${content}</textarea>
+      </div>`;
+    } else {
+      // Read-only mode - show content display with line numbers
+      const lines = (content || 'Arquivo vazio').split('\n');
+      const lineNumbers = lines.map((_, i) => i + 1).join('\n');
+      
+      return `<div class="editor-container">
+        <div class="line-numbers">${lineNumbers}</div>
+        <div class="content-display" id="content">${content || 'Arquivo vazio'}</div>
+      </div>`;
+    }
+  }
+
+  attachButtonEventListeners(saveButtonText: string) {
+    // Edit button event listener
+    const editBtn = this.shadowRoot.querySelector('#editBtn');
+    if (editBtn) {
+      editBtn.addEventListener('click', () => {
+        this.isEditing = true;
+        this.render();
+        this.updateCounters();
+        this.attachTextareaListeners();
+      });
+    }
+
+    // Save button event listener
     const saveBtn = this.shadowRoot.querySelector('#saveBtn');
-    saveBtn.addEventListener('click', () => {
-      console.log('Action:', saveButtonText, 'File:', this.currentFile);
-      this.saveNote(true);
-    });
-  }
-
-  loadNote() {
-    try {
-      const saved = localStorage.getItem(this.STORAGE_KEY);
-      if (saved) {
-        const data = JSON.parse(saved);
-        const textarea = this.shadowRoot.querySelector('#text');
-        textarea.value = data.content || '';
-        this.lastSavedContent = data.content || '';
-        
-        if (data.savedAt) {
-          this.updateLastSaved(new Date(data.savedAt));
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        const textarea = this.shadowRoot.querySelector('#text') as HTMLTextAreaElement;
+        const content = textarea ? textarea.value : '';
+        console.log('Action:', saveButtonText, 'File:', this.currentFile, 'Content:', content);
+        // Switch back to read-only mode after save
+        this.isEditing = false;
+        if (this.currentFile) {
+          this.currentFile.content = content;
         }
-      }
-    } catch (e) {
-      console.error('Erro ao carregar anotações:', e);
-      window.notifications?.show('Erro ao carregar anotações', 'error');
+        this.render();
+        this.updateCounters();
+        this.attachTextareaListeners();
+      });
     }
   }
 
-  saveNote(immediate = false) {
-    const textarea = this.shadowRoot.querySelector('#text');
-    const content = textarea.value;
-    
-    if (content === this.lastSavedContent && !immediate) {
-      return;
-    }
-
-    try {
-      const data = {
-        content: content,
-        savedAt: new Date().toISOString(),
-        wordCount: this.getWordCount(content),
-        charCount: content.length
-      };
-      
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
-      this.lastSavedContent = content;
-      this.showStatus('saved');
-      this.updateLastSaved(new Date());
-      
-    } catch (e) {
-      console.error('Erro ao salvar anotações:', e);
-      this.showStatus('error');
-      
-      if (e.name === 'QuotaExceededError') {
-        window.notifications?.show('Espaço de armazenamento esgotado!', 'error');
-      } else {
-        window.notifications?.show('Erro ao salvar anotações', 'error');
-      }
-    }
-  }
-
-  scheduleAutoSave() {
-    this.showStatus('saving');
-    
-    if (this.autoSaveTimeout) {
-      clearTimeout(this.autoSaveTimeout);
-    }
-    
-    this.autoSaveTimeout = setTimeout(() => {
-      this.saveNote();
-      this.autoSaveTimeout = null;
-    }, 1500);
-  }
-
-  showStatus(status: 'saving' | 'saved' | 'error') {
-    const statusEl = this.shadowRoot.querySelector('#status');
-    const textEl = statusEl.querySelector('.status-text');
-    
-    if (this.statusTimeout) {
-      clearTimeout(this.statusTimeout);
-    }
-    
-    statusEl.className = 'status';
-    
-    switch (status) {
-      case 'saving':
-        textEl.textContent = 'A guardar...';
-        statusEl.classList.add('saving');
-        break;
-        
-      case 'saved':
-        textEl.textContent = 'Guardado';
-        statusEl.classList.add('saved');
-        
-        this.statusTimeout = setTimeout(() => {
-          textEl.textContent = 'Auto-save ativo';
-          statusEl.classList.remove('saved');
-        }, 2000);
-        break;
-        
-      case 'error':
-        textEl.textContent = 'Erro ao guardar';
-        statusEl.classList.add('error');
-        
-        this.statusTimeout = setTimeout(() => {
-          textEl.textContent = 'Auto-save ativo';
-          statusEl.classList.remove('error');
-        }, 3000);
-        break;
-    }
-  }
 
   updateCounters() {
-    const text = this.shadowRoot.querySelector('#text').value;
+    let text = '';
+    
+    // Get text from either textarea (edit mode) or content display (read mode)
+    const textarea = this.shadowRoot.querySelector('#text') as HTMLTextAreaElement;
+    const contentDisplay = this.shadowRoot.querySelector('#content') as HTMLDivElement;
+    
+    if (textarea) {
+      text = textarea.value;
+    } else if (contentDisplay) {
+      text = contentDisplay.textContent || '';
+    }
+    
     const chars = text.length;
     const words = this.getWordCount(text);
     const lines = text ? text.split('\n').length : 0;
     
-    this.shadowRoot.querySelector('#chars').textContent = 
-      `${chars.toLocaleString('pt-BR')} caracteres`;
-    this.shadowRoot.querySelector('#words').textContent = 
-      `${words.toLocaleString('pt-BR')} palavras`;
-    this.shadowRoot.querySelector('#lines').textContent = 
-      `${lines.toLocaleString('pt-BR')} linhas`;
+    const charsEl = this.shadowRoot.querySelector('#chars');
+    const wordsEl = this.shadowRoot.querySelector('#words');
+    const linesEl = this.shadowRoot.querySelector('#lines');
+    
+    if (charsEl) charsEl.textContent = `${chars.toLocaleString('pt-BR')} caracteres`;
+    if (wordsEl) wordsEl.textContent = `${words.toLocaleString('pt-BR')} palavras`;
+    if (linesEl) linesEl.textContent = `${lines.toLocaleString('pt-BR')} linhas`;
   }
 
   private getWordCount(text: string): number {
@@ -851,25 +880,6 @@ class FileViewer extends HTMLElement {
     return text.trim().split(/\s+/).length;
   }
 
-  private updateLastSaved(date: Date) {
-    const lastSavedEl = this.shadowRoot.querySelector('#lastSaved');
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    
-    if (diffMinutes < 1) {
-      lastSavedEl.textContent = 'Salvo agora';
-    } else if (diffMinutes < 60) {
-      lastSavedEl.textContent = `Salvo há ${diffMinutes}m`;
-    } else {
-      const diffHours = Math.floor(diffMinutes / 60);
-      if (diffHours < 24) {
-        lastSavedEl.textContent = `Salvo há ${diffHours}h`;
-      } else {
-        lastSavedEl.textContent = date.toLocaleDateString('pt-BR');
-      }
-    }
-  }
 }
 customElements.define('file-viewer',FileViewer);
 
